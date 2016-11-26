@@ -165,18 +165,7 @@ router.route('/users')
 });
 
 
-router.route('/users/:users_id')
-    .get(function(req, res) {
-    // use our user model to find the user we want
-    User.findOne({uid: req.params.users_id}, function(err, user) {
-      if (err)
-        res.send(err);
 
-            res.setHeader('status', 200)
-            res.setHeader("Content-Type", "application/json;charset=UTF-8")
-      res.json({ success:true , message: 'User retrieved!' , user: user});
-      });
-    });
 
 router.route('/users/:users_id')
 .put(function(req, res) {
@@ -245,17 +234,17 @@ router.route('/upload/:user_id')
         user.save(function(err) {
             if (err)
                 res.send(err);
-        var ok = crypt(supersecret, path, 'newfile.dat')
-        if(ok){
+        var ok = crypt(supersecret, path, 'newfile.dat',req.params.user_id)
+        //if(ok == 'success'){
 		res.setHeader('status', 200)
 		res.setHeader("Content-Type", "application/json;charset=UTF-8")
         res.json({ success:true , message: 'Docs saved', doc:doc });
-		}else{
-			return res.status(403).send({ 
-	        success: false, 
-	        message: 'encrypt has failed for '+path
-	    });
-		}
+		//}else{
+			//return res.status(403).send({ 
+	        //success: false, 
+	       // message: 'encrypt has failed for '+path
+	    //});
+		//}
         });
 		});
 		}else{
@@ -264,9 +253,59 @@ router.route('/upload/:user_id')
 	        message: 'upload did not work',
 	        response:response
 	    });
-	    
 			}
 		})
 	});
+//====================================
+// Graph endpoints
+// ================================
 
+router.route('/search/osc') 
+//get all the users (accessed at GET http://localhost:8080/api/users)
+	.get(function(req, res) {
+
+		User.find(function(err, users) {
+			if (err || !users){
+				return res.status(403).send({ 
+	        success: false, 
+	        message: 'users does not exist'
+	    });
+		}
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+        res.json({ success:true , message: 'Search successful', users: users });
+	});		
+ });
+
+router.route('/search/advisor') 
+//get all the users (accessed at GET http://localhost:8080/api/users)
+	.get(function(req, res) {
+		var proj = { "role": "customer"}
+		User.find(proj, function(err, users) {
+			if (err || !users){
+				return res.status(403).send({ 
+	        success: false, 
+	        message: 'users does not exist'
+	    });
+		}
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+        res.json({ success:true , message: 'Search successful', users: users });
+	});		
+ });
+
+router.route('/users/:users_id')
+    .get(function(req, res) {
+    // use our user model to find the user we want
+    User.findOne({uid: req.params.users_id}, function(err, user) {
+      if (err)
+        res.send(err);
+
+            res.setHeader('status', 200)
+            res.setHeader("Content-Type", "application/json;charset=UTF-8")
+      res.json({ success:true , message: 'User retrieved!' , user: user});
+      });
+    });
+    
+//================================   
 }//end of api

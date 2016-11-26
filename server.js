@@ -31,6 +31,46 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
 	console.log("db started on :"+config.central_database);
+	User.find( function(err, users) {
+		console.log(users)
+		if (users.length < 1){
+				
+	  var user = new User({ 
+			name: "joe" ,
+			email:"joeblow@hot.com",
+			role: "customer",
+			uid: "joe blow",
+			user_key: "37078"
+	  });
+	  // save the sample user
+	  user.save(function(err) {	
+		  console.log(" db has been populated by jow blow")
+	  });	
+	  				
+	  var user = new User({ 
+			name: "jane" ,
+			email:"janedoe@hot.com",
+			role: "advisor",
+			uid: "joe blow",
+			user_key: "37076"
+	  });
+	  // save the sample user
+	  user.save(function(err) {	
+		  console.log(" db has been populated by jane doe")
+	  });
+	  	  var user = new User({ 
+			name: "OSC" ,
+			email:"osc@osc.gov.on.ca",
+			role: "osc",
+			uid: "osc",
+			user_key: "00001"
+	  });
+	  // save the sample user
+	  user.save(function(err) {	
+		  console.log(" db has been populated")
+	  });
+	}	
+	});	
 });
 
 // routes
