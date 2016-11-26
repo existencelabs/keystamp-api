@@ -14,12 +14,14 @@ var config = require('../config'); // get our config file
 var User   = require('../app/models/user'); // get our mongoose model
 var App   = require('../app/models/app'); // get our mongoose model
 
-module.exports = function (app, router) {
+module.exports = function (supersecret, router) {
 
 
 //test route to make sure everything is working (accessed at GET http://localhost:8080/api)
-router.get('/', function(req, res) {
- res.json({ message: 'Welcome to keystamp API!' });   
+router.get('/', function(req, res) {s
+	res.setHeader('status', 200)
+	res.setHeader("Content-Type", "application/json;charset=UTF-8")
+	res.json({ message: 'Welcome to keystamp API!' });   
 });
 
 // Create user and app
@@ -51,8 +53,8 @@ router.post('/create_user', function(req, res) {
 router.post('/create_app', function(req, res) {
 
 	  var app = new App({ 
-			app_id: 123,
-			app_secret: 456
+			app_id: req.body.app_id,
+			app_secret: req.body.app_secret
 	  });
 
 	  app.save(function(err) {
@@ -63,20 +65,22 @@ router.post('/create_app', function(req, res) {
 			});
 		}
 	    console.log('App: '+ app.app_id+' saved successfully');
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
 	    res.json({ success: true , app:app});
 	  });
 	});
 
 router.post('/auth', function(req, res) {
-
+		console.log(req.body.app_id)
 	  // find the user
 	  App.findOne({
-	    app_id: req.body.app_id
+	    "app_id": req.body.app_id
 	  }, function(err, app) {
 	    if (err || !app) {
 			return res.status(403).send({ 
 				success: false, 
-				message: 'App '+app.app_id+' does not exist.' 
+				message: 'App does not exist.' 
 			});
 		}else {
 
@@ -86,10 +90,11 @@ router.post('/auth', function(req, res) {
 	      } else {
 	        // if user is found and password is right
 	        // create a token
-	        var token = jwt.sign(user, app.get('superSecret'), {
-	          expiresInMinutes: 1440 // expires in 24 hours
+	        var token = jwt.sign(app,supersecret, {
+	          //expiresInMinutes: 1440 // expires in 24 hours
 	        });
-
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
 	        // return the information including token as JSON
 	        res.json({
 	          success: true,
@@ -133,14 +138,17 @@ router.use(function(req, res, next) {
 	  }
 	});
 
-
+// Users: 
+// ================================
 router.route('/users') 
 //get all the users (accessed at GET http://localhost:8080/api/users)
 	.get(function(req, res) {
 		User.find(function(err, users) {
 			if (err)
 				res.send(err);
-				res.json(users);
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+		res.json(users);
  });
 });
 
@@ -151,6 +159,8 @@ router.route('/users/:users_id')
     User.findById(req.params.users_id, function(err, user) {
         if (err)
             res.send(err);
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
         res.json(user);
     });
 });
@@ -170,8 +180,9 @@ router.route('/users/:users_id')
         user.save(function(err) {
             if (err)
                 res.send(err);
-
-            res.json({ success:true , message: 'User updated!' , user: user});
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+        res.json({ success:true , message: 'User updated!' , user: user});
         });
 
     });
@@ -184,9 +195,23 @@ router.route('/users/:users_id')
     }, function(err, user) {
         if (err)
             res.send(err);
-
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
         res.json({ success:true, message: 'User: '+ user+' Successfully deleted' });
     });
+});
+
+// Hash api
+//========================================
+
+router.route('/upload/:user_id')
+.post(function(req, res) {
+var path= 'www.google.com'
+	request.get(path, function (error, response, body) {
+		if (!error) {
+			console.log(body) 
+		}
+	})
 });
 
 }//end of api

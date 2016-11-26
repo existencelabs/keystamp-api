@@ -38,7 +38,7 @@ db.once('open', function callback () {
 
 // routes
 var router = express.Router();              // get an instance of the express Router
-require('./router/router')(app, router);
+require('./router/router')(app.get('superSecret'), router);
 
 //REGISTER OUR ROUTES -------------------------------
 //all of our routes will be prefixed with /api
