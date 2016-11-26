@@ -14,6 +14,7 @@ var config = require('../config'); // get our config file
 var User   = require('../app/models/user'); // get our mongoose model
 var App   = require('../app/models/app'); // get our mongoose model
 var request = require('request')
+var crypt = require('../app/encrypt')
 var monthNames = [
   "January", "February", "March",
   "April", "May", "June", "July",
@@ -51,6 +52,8 @@ router.post('/create_user', function(req, res) {
 		}	    if (err) throw err;
 
 	    console.log('User: '+ req.body.uid+' saved successfully');
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
 	    res.json({ success: true, user:user });
 	  });
 	});
@@ -160,18 +163,19 @@ router.route('/users')
  });
 });
 
-router.route('/users/:users_id')
 
-// get the user with that id (accessed at GET http://localhost:8080/api/users/:users_id)
-.get(function(req, res) {
-    User.findById(req.params.users_id, function(err, user) {
-        if (err)
-            res.send(err);
-		res.setHeader('status', 200)
-		res.setHeader("Content-Type", "application/json;charset=UTF-8")
-        res.json(user);
+router.route('/users/:users_id')
+    .get(function(req, res) {
+    // use our user model to find the user we want
+    User.findOne({uid: req.params.users_id}, function(err, user) {
+      if (err)
+        res.send(err);
+
+            res.setHeader('status', 200)
+            res.setHeader("Content-Type", "application/json;charset=UTF-8")
+      res.json({ success:true , message: 'User retrieved!' , user: user});
+      });
     });
-});
 
 router.route('/users/:users_id')
 .put(function(req, res) {
@@ -240,15 +244,23 @@ router.route('/upload/:user_id')
         user.save(function(err) {
             if (err)
                 res.send(err);
+        var ok = crypt(supersecret, path, 'newfile.dat')
+        if(ok){
 		res.setHeader('status', 200)
 		res.setHeader("Content-Type", "application/json;charset=UTF-8")
         res.json({ success:true , message: 'Docs saved', doc:doc });
-        });
- });
-			}else{
+		}else{
 			return res.status(403).send({ 
 	        success: false, 
-	        message: 'upload did nont work',
+	        message: 'encrypt has failed for '+path
+	    });
+		}
+        });
+		});
+		}else{
+			return res.status(403).send({ 
+	        success: false, 
+	        message: 'upload did not work',
 	        response:response
 	    });
 	    
@@ -256,9 +268,4 @@ router.route('/upload/:user_id')
 		})
 	});
 
-router.route('/encrypt/:user_id')
-.post(function(req, res){
-	
-	
-});
 }//end of api
