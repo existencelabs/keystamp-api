@@ -1,4 +1,3 @@
-
 // KeystampAPI
 // =============================================================================
 // Author : Jean-Philippe beaudet @s3r3nity
@@ -11,20 +10,12 @@
 var config = require('../config'); // get our config file
 var morgan      = require('morgan');
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
-var config = require('./config'); // get our config file
-var User   = require('./app/models/user'); // get our mongoose model
-var App   = require('./app/models/app'); // get our mongoose model
+var config = require('../config'); // get our config file
+var User   = require('../app/models/user'); // get our mongoose model
+var App   = require('../app/models/app'); // get our mongoose model
 
 module.exports = function (app, router) {
-	//setup mongoose
-var mongoose   = require('mongoose');
-mongoose.connect(config.database); // database
-app.set('superSecret', config.secret); // secret variable
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function callback () {
-  console.log("db started ------------");
-});
+
 
 //test route to make sure everything is working (accessed at GET http://localhost:8080/api)
 router.get('/', function(req, res) {
@@ -36,10 +27,9 @@ router.post('/create_user', function(req, res) {
 
 	  // create a sample user
 	  var user = new User({ 
-		fullname: req.body.fullname,
-		firstname: req.body.firstname,
-		lastname: req.body.lastname,
-		user_id: req.body.user_id,
+		name: req.body.name,
+		role: req.body.role,
+		user_id: req.body.id,
 		user_key: req.body.user_key
 	  });
 
@@ -156,7 +146,7 @@ router.route('/users')
 
 router.route('/users/:users_id')
 
-// get the user with that id (accessed at GET http://localhost:8080/api/bears/:users_id)
+// get the user with that id (accessed at GET http://localhost:8080/api/users/:users_id)
 .get(function(req, res) {
     User.findById(req.params.users_id, function(err, user) {
         if (err)
@@ -177,12 +167,11 @@ router.route('/users/:users_id')
         user.name = req.body.name;  // update the user name
         user.password = req.body.password;  // update the user password
         user.admin = req.body.admin;  // update the user admin
-        // save the bear
         user.save(function(err) {
             if (err)
                 res.send(err);
 
-            res.json({ success:true , message: 'User updated!' });
+            res.json({ success:true , message: 'User updated!' , user: user});
         });
 
     });
@@ -191,7 +180,7 @@ router.route('/users/:users_id')
 router.route('/users/:users_id')
 .delete(function(req, res) {
     User.remove({
-        _id: req.params.users_id
+        _id: req.params.user_id
     }, function(err, user) {
         if (err)
             res.send(err);
@@ -200,4 +189,4 @@ router.route('/users/:users_id')
     });
 });
 
-}://end of api
+}//end of api
