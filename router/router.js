@@ -13,7 +13,13 @@ var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('../config'); // get our config file
 var User   = require('../app/models/user'); // get our mongoose model
 var App   = require('../app/models/app'); // get our mongoose model
-
+var request = require('request')
+var monthNames = [
+  "January", "February", "March",
+  "April", "May", "June", "July",
+  "August", "September", "October",
+  "November", "December"
+];
 module.exports = function (supersecret, router) {
 
 
@@ -29,9 +35,9 @@ router.post('/create_user', function(req, res) {
 
 	  // create a sample user
 	  var user = new User({ 
-		name: req.body.name,
-		role: req.body.role,
-		user_id: req.body.id,
+		name: req.body.name ,
+		role: req.body.role || "default",
+		uid: req.body.id,
 		user_key: req.body.user_key
 	  });
 
@@ -118,7 +124,7 @@ router.use(function(req, res, next) {
 	  if (token) {
 
 	    // verifies secret and checks exp
-	    jwt.verify(token, app.get('superSecret'), function(err, decoded) {      
+	    jwt.verify(token, supersecret, function(err, decoded) {      
 	      if (err) {
 	        return res.json({ success: false, message: 'Failed to authenticate token.' });    
 	      } else {
@@ -208,13 +214,51 @@ router.route('/users/:users_id')
 
 router.route('/upload/:user_id')
 .post(function(req, res){
-	var endpoint
+	var date = new Date();
+	var day = date.getDate();
+	var monthIndex = date.getMonth();
+	var year = date.getFullYear();
+	var endpoint = '/hashme'
+	var base_url ='https://reghackto.herokuapp.com'
 	var path = req.body.path
-		request.post({url: endpoint, form:{path:path}},function (error, response, body) {
-			if (!error) {
+		request.post({url: base_url+endpoint, form:{file_url:path}},function (error, response, body) {
+			console.log('response: '+JSON.stringify(body) )
+			if ( JSON.parse(body).status == 'success') {
 				console.log(body) 
+		User.findOne({uid: req.params.user_id},
+		function(err, user) {
+			if (err)
+				res.send(err);
+				
+		var doc = {
+			hash:JSON.parse(body).hash,
+			updatedAt: day + ' ' + monthNames[monthIndex] + ' ' + year
+		}
+
+		user.docs.push(doc)
+		console.log('fetched user: '+user+' and doc: '+doc)
+        user.save(function(err) {
+            if (err)
+                res.send(err);
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+        res.json({ success:true , message: 'Docs saved', doc:doc });
+        });
+ });
+			}else{
+			return res.status(403).send({ 
+	        success: false, 
+	        message: 'upload did nont work',
+	        response:response
+	    });
+	    
 			}
 		})
 	});
 
+router.route('/encrypt/:user_id')
+.post(function(req, res){
+	
+	
+});
 }//end of api
