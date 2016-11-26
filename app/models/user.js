@@ -5,6 +5,7 @@ var UserShema   = new Schema({
 	name: String,
 	role: String,
 	uid: String,
+	email:String,
 	user_key: {
 		type: String,
 		default: ""

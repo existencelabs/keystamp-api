@@ -37,6 +37,7 @@ router.post('/create_user', function(req, res) {
 	  // create a sample user
 	  var user = new User({ 
 		name: req.body.name ,
+		email:req.body.email,
 		role: req.body.role || "default",
 		uid: req.body.uid,
 		user_key: req.body.user_key
