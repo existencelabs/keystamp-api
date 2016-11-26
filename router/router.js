@@ -37,7 +37,7 @@ router.post('/create_user', function(req, res) {
 	  var user = new User({ 
 		name: req.body.name ,
 		role: req.body.role || "default",
-		uid: req.body.id,
+		uid: req.body.uid,
 		user_key: req.body.user_key
 	  });
 
@@ -46,11 +46,11 @@ router.post('/create_user', function(req, res) {
 	    if (err) {
 			return res.status(403).send({ 
 				success: false, 
-				message: 'User '+req.body.fullname+' was not saved.' 
+				message: 'User '+req.body.uid+' was not saved.' 
 			});
 		}	    if (err) throw err;
 
-	    console.log('User: '+ req.body.fullname+' saved successfully');
+	    console.log('User: '+ req.body.uid+' saved successfully');
 	    res.json({ success: true, user:user });
 	  });
 	});
