@@ -7,6 +7,8 @@ var UserShema   = new Schema({
 	assignedTo: String,
 	uid: String,
 	email:String,
+	phone: Number,
+	last_pin: Number,
 	user_key: {
 		type: String,
 		default: ""

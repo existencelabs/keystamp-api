@@ -17,6 +17,7 @@ var config = require('./config'); // get our config file
 var User   = require('./app/models/user'); // get our mongoose model
 var logger = require('morgan');
 
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(logger('dev'));
