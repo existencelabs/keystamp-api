@@ -7,7 +7,6 @@
 // Keystamp-api router
 // =============================================================================
 
-
 // call the packages we need
 var express    = require('express');        // call express
 var app        = express();                 // define our app using express
@@ -21,8 +20,6 @@ var logger = require('morgan');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(logger('dev'));
-
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -33,7 +30,7 @@ app.set('superSecret', config.secret); // secret variable
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
-  console.log("db started on :"+config.central_database);
+	console.log("db started on :"+config.central_database);
 });
 
 // routes

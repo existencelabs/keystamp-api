@@ -70,7 +70,9 @@ router.post('/create_app', function(req, res) {
 	    res.json({ success: true , app:app});
 	  });
 	});
-
+	
+// Auth
+// =====================================
 router.post('/auth', function(req, res) {
 		console.log(req.body.app_id)
 	  // find the user
@@ -205,13 +207,14 @@ router.route('/users/:users_id')
 //========================================
 
 router.route('/upload/:user_id')
-.post(function(req, res) {
-var path= 'www.google.com'
-	request.get(path, function (error, response, body) {
-		if (!error) {
-			console.log(body) 
-		}
-	})
-});
+.post(function(req, res){
+	var endpoint
+	var path = req.body.path
+		request.post({url: endpoint, form:{path:path}},function (error, response, body) {
+			if (!error) {
+				console.log(body) 
+			}
+		})
+	});
 
 }//end of api
