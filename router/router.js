@@ -77,7 +77,7 @@ router.post('/create_app', function(req, res) {
 	  });
 	});
 
-router.post('/authenticate', function(req, res) {
+router.post('/auth', function(req, res) {
 
 	  // find the user
 	  App.findOne({
