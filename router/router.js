@@ -629,4 +629,17 @@ router.route('/get_all_document')
  });
 });
 
+
+//getdocument
+router.route('/issuer/get_all_advisors') 
+
+	.get(function(req, res) {
+		User.find({"role":"advisor"},function(err, advisors) {
+	
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+		res.json({success: true, advisors: advisors});
+		});
+});
+
 }//end of api
