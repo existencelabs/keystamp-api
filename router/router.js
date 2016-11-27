@@ -49,7 +49,7 @@ router.post('/create_user', function(req, res) {
 		email:req.body.email,
 		phone: req.body.phone,
 		role: req.body.role || "customer",
-		uid: req.body.uid,
+		uid: req.body.uid || req.body._id,
 		user_key: req.body.user_key
 	  });
 	  if (req.body.role == 'firm'){
