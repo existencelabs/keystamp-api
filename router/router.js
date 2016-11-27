@@ -237,9 +237,6 @@ router.route('/users')
  });
 });
 
-
-
-
 router.route('/users/:users_id')
 .put(function(req, res) {
 
@@ -562,6 +559,39 @@ router.route('/notarize/:users_id')
 	});
 
 });
+
+// lists api
+//====================================
+
+
+//getfirm
+// Users: 
+// ================================
+router.route('/get_firms') 
+//get all the users (accessed at GET http://localhost:8080/api/users)
+	.get(function(req, res) {
+		User.find({"role":"firm" }, function(err, firms) {
+
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+		res.json({success: true, firms: firms});
+ });
+});
+
+//getadvisor
+router.route('/get_advisors/:firm') 
+//get all the users (accessed at GET http://localhost:8080/api/users)
+	.get(function(req, res) {
+		User.find({"role":"advisor", "assignedTo": req.params.firm }, function(err, advisors) {
+
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+		res.json({success: true, advisors: advisors});
+ });
+});
+
+//getuser
+
 
 
 }//end of api
