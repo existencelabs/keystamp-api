@@ -178,6 +178,10 @@ router.post('/auth', function(req, res) {
 	        var token = jwt.sign(app,supersecret, {
 	          //expiresInMinutes: 1440 // expires in 24 hours
 	        });
+	        var id
+	        User.findOne({"name":"OSC"},function(err, osc) {
+
+			
 		res.setHeader('status', 200)
 		res.setHeader("Content-Type", "application/json;charset=UTF-8")
 	        // return the information including token as JSON
@@ -185,7 +189,8 @@ router.post('/auth', function(req, res) {
 	          success: true,
 	          message: 'Authentication succesful',
 	          token: token,
-	          osc_key: config.OSC_KEY
+			  osc:osc
+	        });
 	        });
 	      }   
 	    }
@@ -596,12 +601,27 @@ router.route('/get_customers/:advisor')
 //get all the users (accessed at GET http://localhost:8080/api/users)
 	.get(function(req, res) {
 		User.find({"role":"customer", "assignedTo": req.params.advisor }, function(err, customers) {
-
 		res.setHeader('status', 200)
 		res.setHeader("Content-Type", "application/json;charset=UTF-8")
 		res.json({success: true, customers: customers});
  });
 });
 
+//getdocument
+router.route('/get_all_document') 
+
+	.get(function(req, res) {
+		User.find(function(err, users) {
+			var docs =[]
+		for (i = 0; i < users.length; i++) { 
+			if(users[i].docs != []){
+			docs.push(users[i].docs)
+		}
+		}	
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+		res.json({success: true, docs: docs});
+ });
+});
 
 }//end of api
