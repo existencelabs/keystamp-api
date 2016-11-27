@@ -114,9 +114,23 @@ router.post('/create_user', function(req, res) {
 			});
 		}
 		});
-		}
+		}else{
+			  user.save(function(err) {
+	    if (err) {
+			return res.status(403).send({ 
+				success: false, 
+				message: 'User '+req.body.uid+' was not saved.' 
+			});
+		}	    if (err) throw err;
 
-	});
+	    console.log('User: '+ req.body.uid+' saved successfully');
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+	    res.json({ success: true, user:user });	
+		})
+	}
+
+});
 
 // Middleware before authentification
 router.post('/create_app', function(req, res) {
@@ -280,15 +294,16 @@ router.route('/upload/:user_id')
 				console.log(body) 
 		User.findOne({uid: req.params.user_id},
 		function(err, user) {
-			if (err)
+			if (err || !user)
 				res.send(err);
-		var filen = path.split("/")[filen.length -1]
+		var filen = path.split("/")
+		var name = [filen.length -1]
 		var doc = {
 			hash:JSON.parse(body).hash,
 			updatedAt: day + ' ' + monthNames[monthIndex] + ' ' + year,
 			path: path,
 			signed: false,
-			name: filen
+			name: name
 		}
 
 		user.docs.push(doc)
@@ -297,16 +312,11 @@ router.route('/upload/:user_id')
             if (err)
                 res.send(err);
         var ok = crypt(supersecret, path, 'newfile.dat',req.params.user_id)
-        //if(ok == 'success'){
+
 		res.setHeader('status', 200)
 		res.setHeader("Content-Type", "application/json;charset=UTF-8")
         res.json({ success:true , message: 'Docs saved', doc:doc });
-		//}else{
-			//return res.status(403).send({ 
-	        //success: false, 
-	       // message: 'encrypt has failed for '+path
-	    //});
-		//}
+
         });
 		});
 		}else{
@@ -514,20 +524,33 @@ router.route('/notarize/:users_id')
     .post(function(req, res) {
 		var value = req.body.value	
 		User.findOne({"uid": req.params.users_id}, function(err, user) {
-		if (err){
+		if (err || !user){
 			return res.status(403).send({ 
 	        success: false, 
 	        message: 'user does not exist'
 			});
 		}
-		user.status = "doc_notarized"
-		user.lastUpdated = Date.now()
-		user.save()
-		res.setHeader('status', 200)
-		res.setHeader("Content-Type", "application/json;charset=UTF-8")
-		res.json({ success:true , message: 'Pin matched successfully' });	
+		var docs = []
+		if(user.docs.length > 0){
+		for (var i = 0; i < user.docs.length; i++) { 
 			
+		request.post({url: BASE_URL+'/notarizeme', form: {'text':user.docs[i].hash }},function (error, response, body) {
+			// if(body.status == 'success'){
+			docs.push(user.docs[i].hash)
+		if(i == user.docs.length-1){
+			user.status = "doc_notarized"
+			user.lastUpdated = Date.now()
+			user.save()
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: docs + ' Notarized successfully' });	
+		}
+		});
+			
+		}
+	}
 	});
+
 });
 
 

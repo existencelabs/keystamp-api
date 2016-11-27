@@ -11,6 +11,10 @@ var UserShema   = new Schema({
 	phone: Number,
 	last_pin: Number,
 	status: String,
+	signed: {
+		type: Boolean,
+		default: false
+	},
 	lastUpdated:{
 		type: Date,
 		default: Date.now()
