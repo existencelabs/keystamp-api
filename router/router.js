@@ -69,7 +69,7 @@ router.post('/create_user', function(req, res) {
 				success: false, 
 				message: 'User '+req.body.uid+' was not saved.' 
 			});
-		}	    if (err) throw err;
+		}	    
 
 	    console.log('User: '+ req.body.uid+' saved successfully');
 		res.setHeader('status', 200)
@@ -83,7 +83,7 @@ router.post('/create_user', function(req, res) {
 	  	  User.findOne({
 	    "uid": req.body.assignedTo
 	  }, function(err, adv_user) {
-		  if(user){
+		  if(adv_user){
 	  request.post({url: BASE_URL+'/generate_advisor_key', form: {"firm_key": adv_user.user_key ,"advisor_id": req.body.uid}},function (error, response, body) {
 		  //if(body.status == 'success'){
 			  console.log(body)		
@@ -509,7 +509,9 @@ router.route('/verify_sms/:users_id')
 	        message: 'pin does not match'
 			});
 		}else{
-			user.status = "pin_confirmed"
+			if(req.body.accepted){
+				user.status = "pin_confirmed"
+			}
 			user.lastUpdated = Date.now()
 			user.save()
 			res.setHeader('status', 200)
@@ -531,22 +533,30 @@ router.route('/notarize/:users_id')
 			});
 		}
 		var docs = []
-		if(user.docs.length > 0){
-		for (var i = 0; i < user.docs.length; i++) { 
-			
-		request.post({url: BASE_URL+'/notarizeme', form: {'text':user.docs[i].hash }},function (error, response, body) {
+		var check = 0
+		var l = user.docs.length
+		if(user.docs.length){
+		for (i = 0; i < user.docs.length; i++) { 
+		var d= user.docs[i]
+
+			console.log(JSON.stringify(d.hash))
+				console.log('i= '+i+' l= '+l)		
+		request.post({url: BASE_URL+'/notarizeme', form: {'text':d.hash }},function (error, response, body) {
 			// if(body.status == 'success'){
-			docs.push(user.docs[i].hash)
-		if(i == user.docs.length-1){
+			docs.push(d.hash)
+			console.log(JSON.stringify(d.hash))
+			
+		});
+			check = check+1
+		}
+		console.log('check= '+check+' l= '+l)
+		if(check == (l)){
 			user.status = "doc_notarized"
 			user.lastUpdated = Date.now()
 			user.save()
 			res.setHeader('status', 200)
 			res.setHeader("Content-Type", "application/json;charset=UTF-8")
 			res.json({ success:true , message: docs + ' Notarized successfully' });	
-		}
-		});
-			
 		}
 	}
 	});
