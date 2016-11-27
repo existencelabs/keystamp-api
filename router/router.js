@@ -579,7 +579,7 @@ router.route('/notarize/:users_id')
 // Users: 
 // ================================
 router.route('/get_firms') 
-//get all the users (accessed at GET http://localhost:8080/api/users)
+//get all existing firms (accessed at GET http://localhost:8080/api/get_firms)
 	.get(function(req, res) {
 		User.find({"role":"firm" }, function(err, firms) {
 
@@ -591,7 +591,7 @@ router.route('/get_firms')
 
 //getadvisors
 router.route('/get_advisors/:firm') 
-//get all the users (accessed at GET http://localhost:8080/api/users)
+//get advisor related to the firm(accessed at GET http://localhost:8080/api/get_advisors/:firm)
 	.get(function(req, res) {
 		User.find({"role":"advisor", "assignedTo": req.params.firm }, function(err, advisors) {
 
@@ -603,7 +603,7 @@ router.route('/get_advisors/:firm')
 
 //getusers
 router.route('/get_customers/:advisor') 
-//get all the users (accessed at GET http://localhost:8080/api/users)
+//get customers related to the advisor (accessed at GET http://localhost:8080/api/get_customers/:advisor)
 	.get(function(req, res) {
 		User.find({"role":"customer", "assignedTo": req.params.advisor }, function(err, customers) {
 		res.setHeader('status', 200)
@@ -614,7 +614,7 @@ router.route('/get_customers/:advisor')
 
 //getdocument
 router.route('/get_all_document') 
-
+//get all documents (accessed at GET http://localhost:8080/api/get_all_document)
 	.get(function(req, res) {
 		User.find(function(err, users) {
 			var docs =[]
@@ -630,9 +630,9 @@ router.route('/get_all_document')
 });
 
 
-//getdocument
-router.route('/issuer/get_all_advisors') 
-
+//get alladvisor
+router.route('/get_all_advisors') 
+//get all documents (accessed at GET http://localhost:8080/api/issuer/get_all_advisors)
 	.get(function(req, res) {
 		User.find({"role":"advisor"},function(err, advisors) {
 	
