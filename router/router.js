@@ -373,8 +373,12 @@ router.route('/users/:users_id')
     .get(function(req, res) {
     // use our user model to find the user we want
     User.findOne({uid: req.params.users_id}, function(err, user) {
-      if (err)
-        res.send(err);
+      if (err || !user){
+			return res.status(403).send({ 
+	        success: false, 
+	        message: 'User des not exist'
+			});
+	  }
 
             res.setHeader('status', 200)
             res.setHeader("Content-Type", "application/json;charset=UTF-8")
