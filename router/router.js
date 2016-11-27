@@ -34,7 +34,7 @@ var telesign = require('telesign').setup({
 module.exports = function (supersecret, router) {
 
 //test route to make sure everything is working (accessed at GET http://localhost:8080/api)
-router.get('/', function(req, res) {s
+router.get('/', function(req, res) {
 	res.setHeader('status', 200)
 	res.setHeader("Content-Type", "application/json;charset=UTF-8")
 	res.json({ message: 'Welcome to keystamp API!' });   
