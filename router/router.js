@@ -307,7 +307,8 @@ router.route('/upload/:user_id')
 			updatedAt: day + ' ' + monthNames[monthIndex] + ' ' + year,
 			path: path,
 			signed: false,
-			name: name
+			name: name,
+			comingFrom: req.body.comingFrom
 		}
 
 		user.docs.push(doc)
@@ -632,7 +633,7 @@ router.route('/get_all_document')
 
 //get alladvisor
 router.route('/get_all_advisors') 
-//get all documents (accessed at GET http://localhost:8080/api/issuer/get_all_advisors)
+//get all documents (accessed at GET http://localhost:8080/api/get_all_advisors)
 	.get(function(req, res) {
 		User.find({"role":"advisor"},function(err, advisors) {
 	
