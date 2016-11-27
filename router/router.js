@@ -49,6 +49,7 @@ router.post('/create_user', function(req, res) {
 		email:req.body.email,
 		phone: req.body.phone,
 		role: req.body.role || "customer",
+		assignedTo: req.body.assignedTo,
 		uid: req.body.uid || req.body._id,
 		user_key: req.body.user_key
 	  });

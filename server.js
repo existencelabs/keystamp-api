@@ -57,7 +57,7 @@ db.once('open', function callback () {
 			name: "joe blow" ,
 			email:"joeblow@hot.com",
 			role: "firm",
-			assignedTo: "osc",
+			assignedTo: "1",
 			uid: 55677,
 			user_key: JSON.parse(body_f).xprv,
 			user_pub_key:JSON.parse(body_f).xpub
@@ -74,7 +74,7 @@ db.once('open', function callback () {
 	  var user = new User({ 
 			name: "jane blonde" ,
 			email:"janedoe@hot.com",
-			assignedTo: "joe blow",
+			assignedTo: "55677",
 			role: "advisor",
 			uid: 66789,
 			user_key: JSON.parse(body_a).xprv,
@@ -90,7 +90,7 @@ db.once('open', function callback () {
 	  	  var user = new User({ 
 			name: "joe" ,
 			email:"joeblow@hot.com",
-			assignedTo: "jane blonde",
+			assignedTo: "66789",
 			role: "customer",
 			uid: 22314,
 			user_key: "none"
