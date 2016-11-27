@@ -184,7 +184,8 @@ router.post('/auth', function(req, res) {
 	        res.json({
 	          success: true,
 	          message: 'Authentication succesful',
-	          token: token
+	          token: token,
+	          osc_key: config.OSC_KEY
 	        });
 	      }   
 	    }
@@ -578,7 +579,7 @@ router.route('/get_firms')
  });
 });
 
-//getadvisor
+//getadvisors
 router.route('/get_advisors/:firm') 
 //get all the users (accessed at GET http://localhost:8080/api/users)
 	.get(function(req, res) {
@@ -590,8 +591,17 @@ router.route('/get_advisors/:firm')
  });
 });
 
-//getuser
+//getusers
+router.route('/get_customers/:advisor') 
+//get all the users (accessed at GET http://localhost:8080/api/users)
+	.get(function(req, res) {
+		User.find({"role":"customer", "assignedTo": req.params.advisor }, function(err, customers) {
 
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+		res.json({success: true, customers: customers});
+ });
+});
 
 
 }//end of api
