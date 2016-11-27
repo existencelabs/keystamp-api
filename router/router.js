@@ -479,10 +479,15 @@ router.route('/send_sms/:users_id')
 		var pin = Math.floor(Math.random()*90000) + 10000;
 		user.last_pin = pin
 		user.save()
+		var re = /\(?(\d{3})\)?[- ]?(\d{3})[- ]?(\d{4})/g; 
+		var subst = '$1 $2-$3'; 
+
+		var result = String(phone).replace(re, subst); 
+		console.log(result)
 //Send an SMS text message
 client.sendMessage({
 
-    to: '514-607-9665', // Any number Twilio can deliver to
+    to: result, // Any number Twilio can deliver to
     from: config.twilio_phone, // A number you bought from Twilio and can use for outbound communication
     body: pin // body of the SMS message
 
@@ -493,7 +498,9 @@ client.sendMessage({
         // "responseData" is a JavaScript object containing data received from Twilio.
         // A sample response from sending an SMS message is here (click "JSON" to see how the data appears in JavaScript):
         // http://www.twilio.com/docs/api/rest/sending-sms#example-1
-
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+		res.json({ success:true , message: 'sms sent successfully' });
         console.log(responseData.from); // outputs "+14506667788"
         console.log(responseData.body); // outputs "word to your mother."
 
