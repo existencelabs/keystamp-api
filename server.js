@@ -54,8 +54,8 @@ db.once('open', function callback () {
 		  request.post({url: BASE_URL+'/generate_firm_key', form: {"osc_key": config.OSC_KEY ,"firm_id": 55677}},function (error, response, body_f) {
 			  console.log(body_f)
 	  var user = new User({ 
-			name: "joe blow" ,
-			email:"joeblow@hot.com",
+			name: "Thomas Kyles" ,
+			email:"thomas@fmi.com",
 			role: "firm",
 			assignedTo: "1",
 			uid: 55677,
@@ -66,14 +66,14 @@ db.once('open', function callback () {
 		firm_key = JSON.parse(body_f).xprv
 	  // save the sample user
 	  user.save(function(err) {	
-		  console.log(" db has been populated by jow blow")
+		  console.log(" db has been populated by Thomas Kyles")
 	  });	
 	
 		request.post({url: BASE_URL+'/generate_advisor_key', form: {"firm_key": firm_key, "advisor_id": 66789}},function (error, response, body_a) {
 			  console.log(JSON.parse(body_a).xprv)		
 	  var user = new User({ 
-			name: "jane blonde" ,
-			email:"janedoe@hot.com",
+			name: "Jannete Bohn" ,
+			email:"jannete@hotmail.com",
 			assignedTo: "55677",
 			role: "advisor",
 			uid: 66789,
@@ -83,13 +83,13 @@ db.once('open', function callback () {
 	  
 	  // save the sample user
 	  user.save(function(err) {	
-		  console.log(" db has been populated by jane doe")
+		  console.log(" db has been populated by Jannete Bohn")
 	  });
 	  });
 		});	
 	  	  var user = new User({ 
-			name: "joe" ,
-			email:"joeblow@hot.com",
+			name: "Johnathan" ,
+			email:"jonathan@gmail.com",
 			assignedTo: "66789",
 			role: "customer",
 			uid: 22314,
@@ -97,7 +97,7 @@ db.once('open', function callback () {
 	  });
 	  // save the sample user
 	  user.save(function(err) {	
-		  console.log(" db has been populated by jow blow")
+		  console.log(" db has been populated by Johnathan")
 	  });
 
 	  });
