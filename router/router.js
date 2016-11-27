@@ -16,6 +16,7 @@ var App   = require('../app/models/app'); // get our mongoose model
 var request = require('request')
 var crypt = require('../app/encrypt')
 var Message = require('../app/models/message')
+BASE_URL = 'https://reghackto.herokuapp.com'
 var monthNames = [
   "January", "February", "March",
   "April", "May", "June", "July",
@@ -51,7 +52,16 @@ router.post('/create_user', function(req, res) {
 		uid: req.body.uid,
 		user_key: req.body.user_key
 	  });
-
+	  if (req.body.role == 'firm'){
+	  	  User.findOne({
+	    "name": "OSC"
+	  }, function(err, osc_user) {
+		  var osc_key =  osc_user.user_key
+	  request.post({url: BASE_URL+'/generate_firm_key', form: {"osc_key": osc_key ,"firm_id": req.body.uid}},function (error, response, body) {
+		 // if(body.status == 'success'){
+			  console.log(body)
+			  user.user_key = JSON.parse(body).xprv
+			  user.user_pub_key = JSON.parse(body).xpub
 	  // save the sample user
 	  user.save(function(err) {
 	    if (err) {
@@ -65,7 +75,47 @@ router.post('/create_user', function(req, res) {
 		res.setHeader('status', 200)
 		res.setHeader("Content-Type", "application/json;charset=UTF-8")
 	    res.json({ success: true, user:user });
+	  });	  		  
+		  //}
+		});
+		});
+		}else if (req.body.role == 'advisor'){
+	  	  User.findOne({
+	    "uid": req.body.assignedTo
+	  }, function(err, adv_user) {
+		  if(user){
+	  request.post({url: BASE_URL+'/generate_advisor_key', form: {"firm_key": adv_user.user_key ,"advisor_id": req.body.uid}},function (error, response, body) {
+		  //if(body.status == 'success'){
+			  console.log(body)		
+			  user.user_key = JSON.parse(body).xprv
+			  user.user_pub_key = JSON.parse(body).xpub
+	  // save the sample user
+	  user.save(function(err) {
+	    if (err) {
+			return res.status(403).send({ 
+				success: false, 
+				message: 'User '+req.body.uid+' was not saved.' 
+			});
+		}	    if (err) throw err;
+
+	    console.log('User: '+ req.body.uid+' saved successfully');
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+	    res.json({ success: true, user:user });
+	  });				  		  
+			  
+		 // }
 	  });
+  
+		}else{
+				return res.status(403).send({ 
+				success: false, 
+				message: 'advisor need to be assigned to a firm '
+			});
+		}
+		});
+		}
+
 	});
 
 // Middleware before authentification
@@ -232,10 +282,13 @@ router.route('/upload/:user_id')
 		function(err, user) {
 			if (err)
 				res.send(err);
-				
+		var filen = path.split("/")[filen.length -1]
 		var doc = {
 			hash:JSON.parse(body).hash,
-			updatedAt: day + ' ' + monthNames[monthIndex] + ' ' + year
+			updatedAt: day + ' ' + monthNames[monthIndex] + ' ' + year,
+			path: path,
+			signed: false,
+			name: filen
 		}
 
 		user.docs.push(doc)
@@ -446,11 +499,36 @@ router.route('/verify_sms/:users_id')
 	        message: 'pin does not match'
 			});
 		}else{
+			user.status = "pin_confirmed"
+			user.lastUpdated = Date.now()
+			user.save()
 			res.setHeader('status', 200)
 			res.setHeader("Content-Type", "application/json;charset=UTF-8")
 			res.json({ success:true , message: 'Pin matched successfully' });	
 		}	
 	});
 });
+// Keys api 
+// ===============================================
+router.route('/notarize/:users_id')
+    .post(function(req, res) {
+		var value = req.body.value	
+		User.findOne({"uid": req.params.users_id}, function(err, user) {
+		if (err){
+			return res.status(403).send({ 
+	        success: false, 
+	        message: 'user does not exist'
+			});
+		}
+		user.status = "doc_notarized"
+		user.lastUpdated = Date.now()
+		user.save()
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+		res.json({ success:true , message: 'Pin matched successfully' });	
+			
+	});
+});
+
 
 }//end of api

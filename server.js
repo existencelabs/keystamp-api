@@ -16,14 +16,14 @@ var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
 var User   = require('./app/models/user'); // get our mongoose model
 var logger = require('morgan');
-
+var request = require('request')
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(logger('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+var firm_key
 var port = config.port;    // set our port
 var mongoose   = require('mongoose');
 mongoose.connect(config.central_database); // database
@@ -33,43 +33,75 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
 	console.log("db started on :"+config.central_database);
 	User.find( function(err, users) {
-		console.log(users)
+		//console.log(users)
 		if (users.length < 1){
-				
-	  var user = new User({ 
-			name: "joe" ,
-			email:"joeblow@hot.com",
-			role: "customer",
-			uid: "joe blow",
-			user_key: "37078"
-	  });
-	  // save the sample user
-	  user.save(function(err) {	
-		  console.log(" db has been populated by jow blow")
-	  });	
-	  				
-	  var user = new User({ 
-			name: "jane" ,
-			email:"janedoe@hot.com",
-			role: "advisor",
-			uid: "joe blow",
-			user_key: "37076"
-	  });
-	  // save the sample user
-	  user.save(function(err) {	
-		  console.log(" db has been populated by jane doe")
-	  });
+	  BASE_URL = 'https://reghackto.herokuapp.com'
+	  request.get(BASE_URL+'/generate_master_seed',function (error, response, body) {
+			  console.log(body)
+			  config.OSC_KEY = JSON.parse(body).xprv
+	 
 	  	  var user = new User({ 
 			name: "OSC" ,
 			email:"osc@osc.gov.on.ca",
 			role: "osc",
-			uid: "osc",
-			user_key: "00001"
+			uid: 00001,
+			user_key: JSON.parse(body).xprv,
+			user_pub_key: JSON.parse(body).xpub
+	  });
+	  // osc got its key
+	  user.save(function(err) {	
+		  console.log(" db has been populated by osc")
+		  request.post({url: BASE_URL+'/generate_firm_key', form: {"osc_key": config.OSC_KEY ,"firm_id": 55677}},function (error, response, body_f) {
+			  console.log(body_f)
+	  var user = new User({ 
+			name: "joe blow" ,
+			email:"joeblow@hot.com",
+			role: "firm",
+			assignedTo: "osc",
+			uid: 55677,
+			user_key: JSON.parse(body_f).xprv,
+			user_pub_key:JSON.parse(body_f).xpub
+	  });
+
+		firm_key = JSON.parse(body_f).xprv
+	  // save the sample user
+	  user.save(function(err) {	
+		  console.log(" db has been populated by jow blow")
+	  });	
+	
+		request.post({url: BASE_URL+'/generate_advisor_key', form: {"firm_key": firm_key, "advisor_id": 66789}},function (error, response, body_a) {
+			  console.log(JSON.parse(body_a).xprv)		
+	  var user = new User({ 
+			name: "jane blonde" ,
+			email:"janedoe@hot.com",
+			assignedTo: "joe blow",
+			role: "advisor",
+			uid: 66789,
+			user_key: JSON.parse(body_a).xprv,
+			user_pub_key:  JSON.parse(body_a).xpub
+	  });
+	  
+	  // save the sample user
+	  user.save(function(err) {	
+		  console.log(" db has been populated by jane doe")
+	  });
+	  });
+		});	
+	  	  var user = new User({ 
+			name: "joe" ,
+			email:"joeblow@hot.com",
+			assignedTo: "jane blonde",
+			role: "customer",
+			uid: 22314,
+			user_key: "none"
 	  });
 	  // save the sample user
 	  user.save(function(err) {	
-		  console.log(" db has been populated")
+		  console.log(" db has been populated by jow blow")
 	  });
+
+	  });
+	   });	
 	}	
 	});	
 });
