@@ -1,7 +1,9 @@
 # keystamp-api
 
-###### Author : Jean-Philippe Beaudet
+###### Author : [Jean-Philippe beaudet](http://jeanphilippebeaudet.com) @ [Existence Labs](http://existencelabs.com)
+First place at the [#RegHackTO](http://www.osc.gov.on.ca/en/reghackto.htm) 2016-11-25 to 27
 
+Restful api to handle backend operation, database managment and wrap [kepstamp-cryto](https://github.com/existencelabs/keystamp-crypto) api.  
 #### Installation: 
 ----
 You must have [Node.js](https://nodejs.org/en/download/package-manager/), [npm](https://docs.npmjs.com/cli/install) and [mongoDb](https://docs.mongodb.com/v3.2/installation/l)  installed
