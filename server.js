@@ -19,6 +19,7 @@ var logger = require('morgan');
 var request = require('request')
 var autoUser = require('./app/autouser')
 
+// set middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(logger('dev'));
@@ -30,21 +31,27 @@ var mongoose   = require('mongoose');
 mongoose.connect(config.central_database); // database
 app.set('superSecret', config.secret); // secret variable
 var db = mongoose.connection;
+// check db connection
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
 	console.log("Keystamp-api db started on :"+config.central_database);
 	var start = autoUser()
 });
 
-// routes
-var router = express.Router();              // get an instance of the express Router
-require('./router/router')(app.get('superSecret'), router);
+// router instance
+var router = express.Router();
+// non authenticated routes
+require('./router/index')(app.get('superSecret'), router);
+// authenticate middleware
+require('./router/auth')(app.get('superSecret'), router);
+// authenticated routes
+require('./router/user')(app.get('superSecret'), router);
+require('./router/crypto')(app.get('superSecret'), router);
+require('./router/2wayauth')(app.get('superSecret'), router);
 
-//REGISTER OUR ROUTES -------------------------------
 //all of our routes will be prefixed with /api
 app.use('/api', router);
 
-// START THE SERVER
-// =============================================================================
+// start server
 app.listen(port);
 console.log('Keystamp-api is listening on port ' + port);

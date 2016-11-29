@@ -79,6 +79,7 @@ User.find( function(err, users) {
 				// save the sample customer
 				user.save(function(err) {
 					console.log(" db has been populated by Johnathan")
+					
 					return true
 				});
 			});
