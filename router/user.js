@@ -12,7 +12,9 @@ var morgan      = require('morgan');
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('../config'); // get our config file
 var User   = require('../app/models/user'); // get our mongoose model
+var User2   = require('../app/models/user2'); // get our mongoose model
 var App   = require('../app/models/app'); // get our mongoose model
+var Group   = require('../app/models/groups'); // get our mongoose model
 var request = require('request')
 //var Message = require('../app/models/message')
 
@@ -114,6 +116,65 @@ router.post('/create_user', function(req, res) {
 		})
 	}
 
+});
+
+// Create user 2 (new version)
+router.post('/create_user2', function(req, res) {
+
+	// create a sample user
+	var user = new User({ 
+		name: req.body.name ,
+		email:req.body.email,
+		phone: req.body.phone,
+		role: req.body.role || "client",
+		assignedTo : req.body.assignedto || "",
+		uid: Math.floor(Math.random()*90000) + 10000,
+		user_prv_key: req.body.user_prv_key || "",
+		user_pub_key: req.body.user_key || ""
+	});
+	// save the sample user
+	user.save(function(err) {
+	if (err) {
+		return res.status(403).send({ 
+			success: false, 
+			message: 'User '+req.body.uid+' was not saved.' 
+		});
+	}
+	console.log('User: '+ req.body.uid+' saved successfully');
+	res.setHeader('status', 200)
+	res.setHeader("Content-Type", "application/json;charset=UTF-8")
+	res.json({ success: true, user:user });
+	});
+});
+// Create user 2 (new version)
+router.post('/create_group', function(req, res) {
+
+	request.get(BASE_URL+'/generate_master_seed',function (error, response, body) {
+		console.log(body)
+	// create a sample user
+	var group = new Group({ 
+		members: [req.body.uid],
+		admins: [req.body.uid],
+		master: req.body.uid,
+		xpub: JSON.parse(body).xpub,
+		xprv: JSON.parse(body).xprv,
+		group_name: req.body.name,
+		group_logo: req.body.logo || null
+	});
+	// save the sample user
+	group.save(function(err) {
+	if (err) {
+		return res.status(403).send({ 
+			success: false, 
+			message: 'Group '+req.body.name+' was not created.' 
+		});
+	}
+	console.log('Group '+req.body.name+' created successfully');
+	res.setHeader('status', 200)
+	res.setHeader("Content-Type", "application/json;charset=UTF-8")
+	res.json({ success: true, group:group });
+	});
+});
 });
 
 // Create a new app id and secret
@@ -299,23 +360,5 @@ router.route('/get_all_advisors')
 		res.json({success: true, advisors: advisors});
 		});
 });
-
-// Message api
-//================================   
-
-router.route('/get_messages/:users_id')
-	.get(function(req, res) {
-	Messages.find({"to": req.params.users_id}, function(err, mess) {
-		if (err){
-			return res.status(403).send({ 
-			success: false, 
-			message: 'No messages yet'
-			});
-		}
-		res.setHeader('status', 200)
-		res.setHeader("Content-Type", "application/json;charset=UTF-8")
-		res.json({ success:true , message: 'Messages retreived!' , mess: mess});
-		});
-	});
 
 }//end

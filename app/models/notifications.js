@@ -5,7 +5,6 @@ var NotificationShema   = new Schema({
 	type: String,
 	user: String,
 	messages: String,
-	label: String,
 	read: Boolean
 });
 

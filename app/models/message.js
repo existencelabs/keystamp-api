@@ -5,8 +5,9 @@ var MessageShema   = new Schema({
 	from: String,
 	to: String,
 	creation_date : Date,
-	status: String,
-	content: String
+	_new: Boolean,
+	message: String,
+	path: String,
 });
 
 module.exports = mongoose.model('Message', MessageShema);

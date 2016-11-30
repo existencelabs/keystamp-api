@@ -45,6 +45,7 @@ require('./router/auth')(app.get('superSecret'), router);
 require('./router/user')(app.get('superSecret'), router);
 require('./router/crypto')(app.get('superSecret'), router);
 require('./router/2wayauth')(app.get('superSecret'), router);
+require('./router/utils')(app.get('superSecret'), router);
 
 //all of our routes will be prefixed with /api
 app.use('/api', router);

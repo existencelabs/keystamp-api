@@ -8,7 +8,7 @@ var GroupShema   = new Schema({
 	createdAt: {
 		type: Date,
 		default: Date.now()
-	}
+	},
 	xpub: String,
 	xprv: String,
 	group_name: String,
