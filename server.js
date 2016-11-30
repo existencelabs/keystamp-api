@@ -20,12 +20,9 @@ var request = require('request')
 var autoUser = require('./app/autouser')
 
 // set middlewares
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 app.use(logger('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-var firm_key
 var port = config.port;    // set our port
 var mongoose   = require('mongoose');
 mongoose.connect(config.central_database); // database
