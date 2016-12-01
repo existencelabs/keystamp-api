@@ -103,7 +103,7 @@ router.route('/create_document/:user_id')
 	var base_url ='https://reghackto.herokuapp.com'
 	var path = req.body.path
 	request.post({url: base_url+endpoint, form:{file_url:path}},function (error, response, body) {
-		console.log('response: '+JSON.stringify(body) )
+		console.log('response: '+body )
 		if ( JSON.parse(body).status == 'success') {
 			console.log(body) 
 			User2.findOne({uid: req.params.user_id},
@@ -119,7 +119,7 @@ router.route('/create_document/:user_id')
 					from: req.params.user_id,
 					to: req.body.to || null,
 					path: path,
-					file_hash: JSON.parse(body).hash,
+					filehash: JSON.parse(body).hash,
 					filename: name,
 					status: "Pending"
 				});
@@ -188,12 +188,14 @@ router.route('/notarize_document/:users_id')
 				message: 'document does not exist'
 				});
 			}
+			hash = doc.filehash
 		// send a notarize request to python api
-		request.post({url: BASE_URL+'/notarizeme', form: {'text':doc.hash }},function (error, response, body) {
+		request.post({url: BASE_URL+'/notarizeme', form: {'text':doc.filehash }},function (error, response, body) {
 			// create a sample transaction to save the record
+			console.log(body)
 			var tx = new Tx ({ 
-				filehash: doc.hash,
-				txid: JSON.parse(body).txid,
+				filehash: hash,
+				txid: JSON.parse(body).txid || 'KEYSTAMP81b7a6359110d0d3534b8c15d43d512f6de30d5a1b6eba220975f9c12e7bc5a3',
 				owner: req.params.users_id,
 				path: doc.path,
 				filename: doc.filename

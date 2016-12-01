@@ -7,7 +7,7 @@ var DocumentShema   = new Schema({
 	from: String,
 	to: String,
 	path: String,
-	file_hash: String,
+	filehash: String,
 	filename: String,
 	status: String,
 	lastUpdated: {

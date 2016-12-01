@@ -20,7 +20,7 @@ var BASE_URL = config.KSTMP_CRYTO_BASE_URL
 
 
 module.exports = function (supersecret, router) {
-	
+
 // Create
 //==================================
 // Create user 2 (new version)
@@ -51,7 +51,7 @@ router.post('/create_user', function(req, res) {
 	res.json({ success: true, user:user });
 	});
 });
-// Create user 2 (new version)
+// Create group 2 (new version)
 router.post('/create_group', function(req, res) {
 
 	request.get(BASE_URL+'/generate_master_seed',function (error, response, body) {
