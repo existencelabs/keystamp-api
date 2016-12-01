@@ -15,8 +15,8 @@ var User   = require('../app/models/user'); // get our mongoose model
 var App   = require('../app/models/app'); // get our mongoose model
 var request = require('request')
 //var Message = require('../app/models/message')
-
-BASE_URL = config.KSTMP_CRYTO_BASE_URL
+var notify = require('../app/notify')
+var BASE_URL = config.KSTMP_CRYTO_BASE_URL
 var monthNames = [
   "January", "February", "March",
   "April", "May", "June", "July",

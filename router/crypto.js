@@ -18,8 +18,9 @@ var Document   = require('../app/models/document'); // get our mongoose model
 var App   = require('../app/models/app'); // get our mongoose model
 var request = require('request')
 var crypt = require('../app/encrypt')
+var notify = require('../app/notify')
+var BASE_URL = config.KSTMP_CRYTO_BASE_URL
 
-BASE_URL = config.KSTMP_CRYTO_BASE_URL
 var monthNames = [
   "January", "February", "March",
   "April", "May", "June", "July",
@@ -189,6 +190,7 @@ router.route('/sign_document/:users_id')
 			}
 			doc.status = "signed"
 			doc.save()
+
 			res.setHeader('status', 200)
 			res.setHeader("Content-Type", "application/json;charset=UTF-8")
 			res.json({ success:true , message: doc.filename + ' NSigned succesfully', doc: doc});
@@ -214,7 +216,7 @@ router.route('/notarize_document/:users_id')
 			var tx = new Tx ({ 
 				filehash: doc.hash,
 				txid: JSON.parse(body).txid,
-				owner: req.params.user_id,
+				owner: req.params.users_id,
 				path: doc.path,
 				filename: doc.filename
 			});
@@ -231,21 +233,30 @@ router.route('/notarize_document/:users_id')
 router.route('/notarize_text/:users_id')
 	.post(function(req, res) {
 		var value = req.body.value
+		var username = req.params.users_id
 		// send a notarize request to python api
 		request.post({url: BASE_URL+'/notarizeme', form: {'text':value }},function (error, response, body) {
 			// create a sample transaction to save the record
 			var tx = new Tx ({ 
 				filehash: value,
 				txid: JSON.parse(body).txid,
-				owner: req.params.user_id,
+				owner: username ,
 				path: "",
 				filename: "",
 				is_message: true
 			});
 			tx.save()
+			notify('success', req.params.users_id , '" '+ value + ' " Notarized successfully', function(err, val){
+				if(err){
+					return res.status(403).send({ 
+						success: false, 
+						message: 'notification failed'
+					});
+				}
 			res.setHeader('status', 200)
 			res.setHeader("Content-Type", "application/json;charset=UTF-8")
 			res.json({ success:true , message:'" '+ value + ' " Notarized successfully', value: value, tx:tx});
+			})
 	});
 });
 // verify document integrity by hashes

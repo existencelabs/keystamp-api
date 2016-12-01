@@ -4,7 +4,7 @@ var Schema       = mongoose.Schema;
 var TxShema   = new Schema({
 	filehash: String,
 	txid: String,
-	owner: String,
+	owner: Number,
 	tx_date: {
 		type: Date,
 		default: Date.now()

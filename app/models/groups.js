@@ -4,7 +4,7 @@ var Schema       = mongoose.Schema;
 var GroupShema   = new Schema({
 	members: Array,
 	admins: Array,
-	master: String,
+	master: Number,
 	createdAt: {
 		type: Date,
 		default: Date.now()

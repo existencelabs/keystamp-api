@@ -2,6 +2,7 @@ var mongoose     = require('mongoose');
 var Schema       = mongoose.Schema;
 
 var MessageShema   = new Schema({
+	owner: Number,
 	from: String,
 	to: String,
 	creation_date : Date,

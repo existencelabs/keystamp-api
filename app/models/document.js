@@ -3,7 +3,7 @@ var Schema       = mongoose.Schema;
 
 var DocumentShema   = new Schema({
 	doc_id: String,
-	owner: String,
+	owner: Number,
 	from: String,
 	to: String,
 	path: String,

@@ -2,8 +2,9 @@ var mongoose     = require('mongoose');
 var Schema       = mongoose.Schema;
 
 var NotificationShema   = new Schema({
+	nid: String,
 	type: String,
-	user: String,
+	owner: Number,
 	messages: String,
 	read: Boolean
 });

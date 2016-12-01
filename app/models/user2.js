@@ -4,11 +4,14 @@ var Schema       = mongoose.Schema;
 var UserShema2   = new Schema({
 	name: String,
 	role: String,
-	uid: String,
+	uid: Number,
 	email:String,
 	phone: Number,
 	last_pin: Number,
-	assignedTo: String,
+	assignedTo: {
+		type: Array,
+		default: []
+	},
 	status: String,
 	lastUpdated:{
 		type: Date,

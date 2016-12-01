@@ -17,8 +17,8 @@ var App   = require('../app/models/app'); // get our mongoose model
 var Group   = require('../app/models/groups'); // get our mongoose model
 var request = require('request')
 //var Message = require('../app/models/message')
-
-BASE_URL = config.KSTMP_CRYTO_BASE_URL
+var notify = require('../app/notify')
+var BASE_URL = config.KSTMP_CRYTO_BASE_URL
 var monthNames = [
   "January", "February", "March",
   "April", "May", "June", "July",
@@ -127,7 +127,7 @@ router.post('/create_user2', function(req, res) {
 		email:req.body.email,
 		phone: req.body.phone,
 		role: req.body.role || "client",
-		assignedTo : req.body.assignedto || "",
+		assignedTo : req.body.assignedto || null,
 		uid: Math.floor(Math.random()*90000) + 10000,
 		user_prv_key: req.body.user_prv_key || "",
 		user_pub_key: req.body.user_key || ""
