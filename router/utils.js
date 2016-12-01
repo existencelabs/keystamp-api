@@ -19,6 +19,7 @@ var request = require('request')
 var Message = require('../app/models/message')
 var Tx   = require('../app/models/tx'); // get our mongoose model
 var Notification   = require('../app/models/notifications'); // get our mongoose model
+var mailer = require('../app/mailer')
 BASE_URL = config.KSTMP_CRYTO_BASE_URL
 
 
@@ -261,6 +262,42 @@ router.route('/assign/:users_id')
 	})
 });
 // unlink from middleman
+router.route('/unlink/:users_id')
+	.post(function(req, res) {
+	var assigner = req.body.assigner
+	var assignee = req.params.users_id
+	 User2.findOne({"uid": assignee}, function(err, usr) {
+		if (err || !usr){
+			return res.status(403).send({ 
+			success: false, 
+			message: 'User: '+assignee+ ' does not exists' 
+			});
+		}
+		usr.assignedTo = null
+		usr.save(function(){
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: assignee+' assigned to '+ assigner , assignedTo: usr.assignedTo});
+		})
+	})
+});
 // invite to keystamp
-
+router.route('/invite/:users_id')
+	.post(function(req, res) {
+	var from = req.body.from
+	var email = req.body.email
+	var to = req.body.name 
+	mailer.invite(from, to, email,  function(err){
+		if(err){
+			return res.status(403).send({ 
+			success: false, 
+			message: 'Invite to: '+to+ ' from '+from+' failed' ,
+				error: err
+		});
+		}
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: 'Invite to '+to+' from '+from+' successfully sent'});
+		})
+	});
 }//end
