@@ -71,7 +71,7 @@ router.route('/upload/:user_id')
 					owner: req.params.user_id,
 					from: req.params.user_id,
 					to: null,
-					path: '/'+req.params.user_id+'/newfile.dat',
+					path: __dirname+'/'+req.params.user_id+'/newfile.dat',
 					file_hash: JSON.parse(body).hash,
 					filename:  'newfile.dat',
 					status: "Pending"
