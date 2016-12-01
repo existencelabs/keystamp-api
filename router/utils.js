@@ -174,6 +174,67 @@ router.route('/get_clients_by_middleman/:users_id')
 	
 // Assign api 
 // ===============================
-// assign a user to a group
+// invite to a group
+// subscribe to a group
+router.route('/subscribe/:users_id')
+	.post(function(req, res) {
+	var group_name = req.body.group
+	 Group.findOne({"group_name": group_name}, function(err, group) {
+		if (err || !group){
+			return res.status(403).send({ 
+			success: false, 
+			message: 'Group does not exists' 
+			});
+		}
+		for (i = 0; i < group.members.length; i++) { 
+			if(group.members[i] == req.params.users_id){
+				return res.status(403).send({ 
+			success: false, 
+			message: req.params.users_id+' already in group: '+group.group_name 
+			});
+			}
+		}
+		group.members.push(req.params.users_id)
+		group.save(function(){
+		res.setHeader('status', 200)
+		res.setHeader("Content-Type", "application/json;charset=UTF-8")
+		res.json({ success:true , message: 'Clients assigned to: '+req.params.users_id+' retreived!' , members: group.members});
+		})
+		});
+	});
+	
+// unsubscribe from a group
+router.route('/unsubscribe/:users_id')
+	.post(function(req, res) {
+	var group_name = req.body.group
+	 Group.findOne({"group_name": group_name}, function(err, group) {
+		if (err || !group){
+			return res.status(403).send({ 
+			success: false, 
+			message: 'Group does not exists' 
+			});
+		}
+		for (i = 0; i < group.members.length; i++) { 
+			if(group.members[i] == req.params.users_id){
+				group.members.splice(i)
+				group.save()
+				res.setHeader('status', 200)
+				res.setHeader("Content-Type", "application/json;charset=UTF-8")
+				res.json({ success:true , message: req.params.users_id+' unsubscribed from '+ group.group_name , members: group.members});
+				
+			}else{
+				return res.status(403).send({ 
+				success: false, 
+				message: req.params.users_id+ 'Is not member of '+ group.group_name
+			});
+			}
+			}
+		
+	})
+});
+	
+// assign to middleman
+// unlink from middleman
+// invite to keystamp
 
 }//end
