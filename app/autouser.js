@@ -25,7 +25,7 @@ User2.find( function(err, users) {
 				email:"osc@osc.gov.on.ca",
 				role: "osc",
 				uid: 00001,
-				user_key: JSON.parse(body).xprv,
+				user_prv_key: JSON.parse(body).xprv,
 				user_pub_key: JSON.parse(body).xpub
 			});
 			// osc got its key
@@ -41,7 +41,7 @@ User2.find( function(err, users) {
 						role: "firm",
 						assignedTo: "1",
 						uid: 55677,
-						user_key: JSON.parse(body_f).xprv,
+						user_prv_key: JSON.parse(body_f).xprv,
 						user_pub_key:JSON.parse(body_f).xpub
 					});
 					firm_key = JSON.parse(body_f).xprv
@@ -58,7 +58,7 @@ User2.find( function(err, users) {
 						assignedTo: "55677",
 						role: "advisor",
 						uid: 66789,
-						user_key: JSON.parse(body_a).xprv,
+						user_prv_key: JSON.parse(body_a).xprv,
 						user_pub_key:  JSON.parse(body_a).xpub
 						});
 						// save the advisor
@@ -72,7 +72,8 @@ User2.find( function(err, users) {
 					assignedTo: "66789",
 					role: "customer",
 					uid: 22314,
-					user_key: "none"
+					user_prv_key: "",
+					user_pub_key: ""
 				});
 				// save the sample customer
 				user.save(function(err) {
