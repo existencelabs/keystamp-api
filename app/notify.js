@@ -23,9 +23,9 @@ var Notification   = require('../app/models/notifications'); // get our mongoose
 	// save the sample notification
 	notification.save(function(err) {
 		if (err) {
-			return cb(err, null)
+			return cb(err)
 		}
-		return cb(null, notification)
+		return cb(null)
 	});
 }
 

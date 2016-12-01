@@ -6,17 +6,16 @@
 //
 // Keystamp-api encryptor
 // =============================================================================
-module.exports = function (key, file, filename, user){
-	var request =require('request')
-	console.log('encrypt | received= key: '+key+' file: '+file+' filename: '+filename)
-	var encryptor = require('file-encryptor');
+var encryptor = require('file-encryptor');
+var request =require('request')
+
+module.exports = {
+	"upload": function (key, file, filename, user, cb){
+	var options = { algorithm: 'aes256' };
+	console.log('upload - key: '+key+' file: '+file+' filename: '+filename)
 	var fs = require('fs')
 	request.get('https://bitcoin-outlet.s3.amazonaws.com/qTdmWd8MrGWTbC9Yp/pdf-sample.pdf',function (error, response, body) {
 		console.log('request got : '+JSON.stringify(response))
-		//fs.writeFile('./tmp/message.pdf', JSON.stringify(body), function (err) {
-			//if (err) throw err;
-		//	console.log('It\'s saved!');
-		//});
 	}).pipe(fs.createWriteStream('./tmp/message.pdf'));;
 	encryptor.encryptFile('./tmp/message.pdf', filename, key, function(err) {
 		// Encryption complete.
@@ -32,12 +31,40 @@ module.exports = function (key, file, filename, user){
  
 			if (err) {
 				console.error("write error:  " + err.message);
-				return false
+				return cb(err)
 			} else {
 				console.log(filename+" Successfully Written to " + path);
-				return 'success'
+				return cb(null)
 			}
 		});
-				
-	});
-}
+		});
+	},
+	"encrypt": function (key, path, newname, user, cb , opts){
+		var options = {};
+		if (opts){
+			options = opts
+		}else{
+			options = { algorithm: 'aes256' }
+		}
+		encryptor.encryptFile(path, newname, key, options, function(err) {
+			if (err){
+				return cb(err)
+			}
+			else cb(null)
+	})
+	},
+	"decrypt": function (key, path, newname, user, cb, opts){
+		var options = {};
+		if (opts){
+			options = opts
+		}else{
+			options = { algorithm: 'aes256' }
+		}
+		encryptor.decryptFile(path, newname, key, options, function(err) {
+			if (err){
+				return cb(err)
+			}
+			else cb(null)
+	})
+	}
+}//end

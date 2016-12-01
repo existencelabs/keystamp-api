@@ -64,10 +64,31 @@ router.route('/upload/:user_id')
 		user.save(function(err) {
 			if (err)
 				res.send(err);
-		var ok = crypt(supersecret, path, 'newfile.dat',req.params.user_id)
-		res.setHeader('status', 200)
-		res.setHeader("Content-Type", "application/json;charset=UTF-8")
-		res.json({ success:true , message: 'Docs saved', doc:doc });
+		var ok = crypt.upload(supersecret, path, 'newfile.dat',req.params.user_id, function(err){
+					// create a sample document
+				var document = new Document ({
+					doc_id: Math.floor(Math.random()*90000) + 10000, 
+					owner: req.params.user_id,
+					from: req.params.user_id,
+					to: null,
+					path: '/'+req.params.user_id+'/newfile.dat',
+					file_hash: JSON.parse(body).hash,
+					filename:  'newfile.dat',
+					status: "Pending"
+				});
+			document.save()
+			notify('success', req.params.user_id ,  'newfile.dat uploaded', function(err){
+				if(err){
+					return res.status(403).send({ 
+						success: false, 
+						message: 'notification failed'
+					});
+				}
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: 'Docs saved', doc:doc });
+		})
+		})
 		});
 		});
 		}else{
@@ -162,9 +183,17 @@ router.route('/create_document/:user_id')
 				document.save(function(err) {
 					if (err)
 						res.send(err);
+			notify('success', req.params.users_id , document.filename+' uploaded', function(err){
+				if(err){
+					return res.status(403).send({ 
+						success: false, 
+						message: 'notification failed'
+					});
+				}
 				res.setHeader('status', 200)
 				res.setHeader("Content-Type", "application/json;charset=UTF-8")
-				res.json({ success:true , message: 'Document registered', doc:document });
+				res.json({ success:true , message: document.filename+' uploaded', doc:document });
+			})
 			});
 		});
 		}else{
@@ -190,11 +219,17 @@ router.route('/sign_document/:users_id')
 			}
 			doc.status = "signed"
 			doc.save()
-
+			notify('success', req.params.users_id , doc.filename + ' Signed succesfully', function(err){
+				if(err){
+					return res.status(403).send({ 
+						success: false, 
+						message: 'notification failed'
+					});
+				}
 			res.setHeader('status', 200)
 			res.setHeader("Content-Type", "application/json;charset=UTF-8")
-			res.json({ success:true , message: doc.filename + ' NSigned succesfully', doc: doc});
-		
+			res.json({ success:true , message: doc.filename + ' Signed succesfully', doc: doc});
+		})
 	});
 
 });
@@ -223,9 +258,17 @@ router.route('/notarize_document/:users_id')
 			doc.status = "notarized"
 			doc.save()
 			tx.save()
+			notify('success', req.params.users_id , doc.filename + ' Notarized successfully', function(err){
+				if(err){
+					return res.status(403).send({ 
+						success: false, 
+						message: 'notification failed'
+					});
+				}
 			res.setHeader('status', 200)
 			res.setHeader("Content-Type", "application/json;charset=UTF-8")
 			res.json({ success:true , message: doc.filename + ' Notarized successfully', doc: doc, tx:tx});
+		})
 		});
 	});
 });
@@ -246,7 +289,7 @@ router.route('/notarize_text/:users_id')
 				is_message: true
 			});
 			tx.save()
-			notify('success', req.params.users_id , '" '+ value + ' " Notarized successfully', function(err, val){
+			notify('success', req.params.users_id , '" '+ value + ' " Notarized - txid: '+JSON.parse(body).txid, function(err){
 				if(err){
 					return res.status(403).send({ 
 						success: false, 
@@ -295,4 +338,27 @@ router.route('/verify_document/:users_id')
 		});
 	});
 	});
+	
+// notarize any text
+router.route('/decrypt_file/:users_id')
+	.post(function(req, res) {
+		var path = req.body.path
+		var username = req.params.users_id
+		var key = req.body.key
+		var filename= req.body.filename || username+"-"+Date.now()
+		var ok = crypt.decrypt(key, path, filename, username, function(err){
+			notify('success', username , path + ' encrypted succesfully successfully', function(err){
+				if(err){
+					return res.status(403).send({ 
+						success: false, 
+						message: 'notification failed'
+					});
+				}
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: path + ' encrypted succesfully successfully', value: value, tx:tx});
+			})
+	});
+});
+	
 }// end
