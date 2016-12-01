@@ -9,7 +9,16 @@ var DocumentShema   = new Schema({
 	path: String,
 	file_hash: String,
 	filename: String,
-	status: String
+	status: String,
+	lastUpdated: {
+		type: Date,
+		default: Date.now()
+	},
+	encypted: {
+		type: Boolean,
+		default: false
+	}
+	
 });
 
 module.exports = mongoose.model('Document', DocumentShema );

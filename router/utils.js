@@ -105,7 +105,7 @@ router.route('/get_notfications/:users_id')
 router.route('/create_notification')
 	.post(function(req, res) {
 
-	// create a sample message
+	// create a sample notification
 	var notification = new Notification ({ 
 		type: req.body.type,
 		user: req.body.uid,

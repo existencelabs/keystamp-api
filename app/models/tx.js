@@ -4,11 +4,15 @@ var Schema       = mongoose.Schema;
 var TxShema   = new Schema({
 	filehash: String,
 	txid: String,
-	user: String,
+	owner: String,
 	tx_date: {
 		type: Date,
 		default: Date.now()
-	}
+	},
+	is_message: {
+		type: Boolean,
+		default: false
+	},
 	path: String,
 	filename: String
 });

@@ -12,11 +12,12 @@ var morgan      = require('morgan');
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('../config'); // get our config file
 var User   = require('../app/models/user'); // get our mongoose model
+var User2   = require('../app/models/user2'); // get our mongoose model
+var Tx   = require('../app/models/tx'); // get our mongoose model
 var Document   = require('../app/models/document'); // get our mongoose model
 var App   = require('../app/models/app'); // get our mongoose model
 var request = require('request')
 var crypt = require('../app/encrypt')
-//var Message = require('../app/models/message')
 
 BASE_URL = config.KSTMP_CRYTO_BASE_URL
 var monthNames = [
@@ -126,7 +127,7 @@ router.route('/notarize/:users_id')
 
 //Documents
 //==========
-
+// create
 router.route('/create_document/:user_id')
 .post(function(req, res){
 	var date = new Date();
@@ -151,8 +152,8 @@ router.route('/create_document/:user_id')
 					doc_id: Math.floor(Math.random()*90000) + 10000, 
 					owner: req.params.user_id,
 					from: req.params.user_id,
-					to: req.params.to || null,
-					path: req.params.path,
+					to: req.body.to || null,
+					path: path,
 					file_hash: JSON.parse(body).hash,
 					filename: name,
 					status: "Pending"
@@ -174,44 +175,113 @@ router.route('/create_document/:user_id')
 	}
 	})
 });
-router.route('/notarize_document/:users_id')
-    .post(function(req, res) {
-		var value = req.body.value	
-		Document.findOne({"uid": req.params.users_id}, function(err, user) {
-		if (err || !user){
-			return res.status(403).send({ 
-	        success: false, 
-	        message: 'user does not exist'
-			});
-		}
-		var docs = []
-		var check = 0
-		var l = user.docs.length
-		if(user.docs.length){
-		for (i = 0; i < user.docs.length; i++) { 
-		var d= user.docs[i]
-
-			console.log(JSON.stringify(d.hash))
-				console.log('i= '+i+' l= '+l)		
-		request.post({url: BASE_URL+'/notarizeme', form: {'text':d.hash }},function (error, response, body) {
-			// if(body.status == 'success'){
-			docs.push(d.hash)
-			console.log(JSON.stringify(d.hash))
-			
-		});
-			check = check+1
-		}
-		console.log('check= '+check+' l= '+l)
-		if(check == (l)){
-			user.status = "doc_notarized"
-			user.lastUpdated = Date.now()
-			user.save()
+// sign
+router.route('/sign_document/:users_id')
+	.post(function(req, res) {
+		var doc_id = req.body.doc_id
+		//find the targeted document
+		Document.findOne({"owner": req.params.users_id, "doc_id":doc_id}, function(err, doc) {
+			if (err || !doc){
+				return res.status(403).send({ 
+				success: false, 
+				message: 'document does not exist'
+				});
+			}
+			doc.status = "signed"
+			doc.save()
 			res.setHeader('status', 200)
 			res.setHeader("Content-Type", "application/json;charset=UTF-8")
-			res.json({ success:true , message: docs + ' Notarized successfully' });	
-		}
-	}
+			res.json({ success:true , message: doc.filename + ' NSigned succesfully', doc: doc});
+		
 	});
 
 });
+// notarize a document
+router.route('/notarize_document/:users_id')
+	.post(function(req, res) {
+		var doc_id = req.body.doc_id
+		//find the targeted document
+		Document.findOne({"owner": req.params.users_id, "doc_id":doc_id}, function(err, doc) {
+			if (err || !doc){
+				return res.status(403).send({ 
+				success: false, 
+				message: 'document does not exist'
+				});
+			}
+		// send a notarize request to python api
+		request.post({url: BASE_URL+'/notarizeme', form: {'text':doc.hash }},function (error, response, body) {
+			// create a sample transaction to save the record
+			var tx = new Tx ({ 
+				filehash: doc.hash,
+				txid: JSON.parse(body).txid,
+				owner: req.params.user_id,
+				path: doc.path,
+				filename: doc.filename
+			});
+			doc.status = "notarized"
+			doc.save()
+			tx.save()
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: doc.filename + ' Notarized successfully', doc: doc, tx:tx});
+		});
+	});
+});
+// notarize any text
+router.route('/notarize_text/:users_id')
+	.post(function(req, res) {
+		var value = req.body.value
+		// send a notarize request to python api
+		request.post({url: BASE_URL+'/notarizeme', form: {'text':value }},function (error, response, body) {
+			// create a sample transaction to save the record
+			var tx = new Tx ({ 
+				filehash: value,
+				txid: JSON.parse(body).txid,
+				owner: req.params.user_id,
+				path: "",
+				filename: "",
+				is_message: true
+			});
+			tx.save()
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message:'" '+ value + ' " Notarized successfully', value: value, tx:tx});
+	});
+});
+// verify document integrity by hashes
+router.route('/verify_document/:users_id')
+	.post(function(req, res) {
+		var doc_id = req.body.doc_id
+
+		//find the targeted document
+		Document.findOne({"owner": req.params.users_id, "doc_id":doc_id}, function(err, doc) {
+			if (err || !doc){
+				return res.status(403).send({ 
+				success: false, 
+				message: 'document does not exist'
+				});
+			}
+		//find the targeted document saved hash on the blockchain 
+		Tx.findOne({"owner": req.params.users_id, "path":doc.path}, function(err, tx) {
+		request.post({url: BASE_URL+'/get_hash_from_bc', form: {'txid':tx.txid }},function (error, response, body) {
+			var true_hash = JSON.parse(body).hash
+			var new_hash = doc.hash
+			// then compare the two hashes for integrity
+			if(true_hash && new_hash && true_hash === new_hash){
+				res.setHeader('status', 200)
+				res.setHeader("Content-Type", "application/json;charset=UTF-8")
+				res.json({ success:true , message: 'Integrity is confirmed', integrity: true, bc_hash: true_hash, new_hash: new_hash});
+			}else{
+				res.json({ 
+				success: true, 
+				integrity: false,
+				message: 'Integrity in compromised',
+				bc_hash: true_hash, 
+				new_hash: new_hash
+				});
+			}
+			})
+		});
+	});
+	});
 }// end
