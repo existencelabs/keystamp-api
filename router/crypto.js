@@ -111,7 +111,7 @@ router.route('/create_document/:user_id')
 				if (err || !user)
 					res.send(err);
 				var filen = path.split("/")
-				var name = [filen.length -1]
+				var name = filen[filen.length -1]
 				// create a sample document
 				var document = new Document ({
 					doc_id: Math.floor(Math.random()*90000) + 10000, 
