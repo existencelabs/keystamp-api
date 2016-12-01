@@ -14,7 +14,7 @@ var DocumentShema   = new Schema({
 		type: Date,
 		default: Date.now()
 	},
-	encypted: {
+	encrypted: {
 		type: Boolean,
 		default: false
 	}

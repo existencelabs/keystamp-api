@@ -63,7 +63,8 @@ router.route('/upload/:user_id')
 					path: __dirname+'/'+req.params.user_id+'/newfile.dat',
 					file_hash: JSON.parse(body).hash,
 					filename:  'newfile.dat',
-					status: "Pending"
+					status: "Pending",
+					encypted :true
 				});
 			document.save()
 			notify('success', req.params.user_id ,  'newfile.dat uploaded', function(err){
@@ -122,6 +123,7 @@ router.route('/create_document/:user_id')
 					filehash: JSON.parse(body).hash,
 					filename: name,
 					status: "Pending"
+					
 				});
 				document.save(function(err) {
 					if (err)
