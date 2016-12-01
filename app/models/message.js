@@ -5,7 +5,10 @@ var MessageShema   = new Schema({
 	owner: Number,
 	from: String,
 	to: String,
-	creation_date : Date,
+	creation_date : {
+		type: Date,
+		default: Date.now()
+	},
 	_new: Boolean,
 	message: String,
 	path: String,

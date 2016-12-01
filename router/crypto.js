@@ -128,7 +128,7 @@ router.route('/create_document/:user_id')
 				document.save(function(err) {
 					if (err)
 						res.send(err);
-			notify('success', req.params.users_id , document.filename+' uploaded', function(err){
+			notify('success', req.params.user_id , document.filename+' uploaded', function(err){
 				if(err){
 					return res.status(403).send({ 
 						success: false, 
@@ -197,7 +197,7 @@ router.route('/notarize_document/:users_id')
 			console.log(body)
 			var tx = new Tx ({ 
 				filehash: hash,
-				txid: JSON.parse(body).txid || 'KEYSTAMP81b7a6359110d0d3534b8c15d43d512f6de30d5a1b6eba220975f9c12e7bc5a3',
+				txid: JSON.parse(body).txid || '81b7a6359110d0d3534b8c15d43d512f6de30d5a1b6eba220975f9c12e7bc5a3',
 				owner: req.params.users_id,
 				path: doc.path,
 				filename: doc.filename

@@ -6,7 +6,11 @@ var NotificationShema   = new Schema({
 	type: String,
 	owner: Number,
 	messages: String,
-	read: Boolean
+	read: Boolean,
+	createAt: {
+		type: Date,
+		default: Date.now()
+	}
 });
 
 module.exports = mongoose.model('Notification', NotificationShema);

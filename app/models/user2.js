@@ -27,6 +27,10 @@ var UserShema2   = new Schema({
 	user_pub_key: {
 		type: String,
 		default: ""
+	},
+	user_key_path: {
+		type: String,
+		default: ""
 	}
 });
 
