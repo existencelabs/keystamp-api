@@ -11,7 +11,6 @@ var config = require('../config'); // get our config file
 var morgan      = require('morgan');
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('../config'); // get our config file
-var User   = require('../app/models/user'); // get our mongoose model
 var User2   = require('../app/models/user2'); // get our mongoose model
 var Tx   = require('../app/models/tx'); // get our mongoose model
 var Document   = require('../app/models/document'); // get our mongoose model
@@ -31,7 +30,7 @@ var monthNames = [
 module.exports = function (supersecret, router) {
 // Hash api
 //========================================
-
+// upload and encrypt
 router.route('/upload/:user_id')
 .post(function(req, res){
 	var date = new Date();
@@ -45,22 +44,12 @@ router.route('/upload/:user_id')
 			console.log('response: '+JSON.stringify(body) )
 			if ( JSON.parse(body).status == 'success') {
 				console.log(body) 
-		User.findOne({uid: req.params.user_id},
+		User2.findOne({uid: req.params.user_id},
 		function(err, user) {
 			if (err || !user)
 				res.send(err);
 		var filen = path.split("/")
 		var name = [filen.length -1]
-		var doc = {
-			hash:JSON.parse(body).hash,
-			updatedAt: day + ' ' + monthNames[monthIndex] + ' ' + year,
-			path: path,
-			signed: false,
-			name: name,
-			comingFrom: req.body.comingFrom
-		}
-		user.docs.push(doc)
-		console.log('fetched user: '+user+' and doc: '+doc)
 		user.save(function(err) {
 			if (err)
 				res.send(err);
@@ -86,7 +75,7 @@ router.route('/upload/:user_id')
 				}
 			res.setHeader('status', 200)
 			res.setHeader("Content-Type", "application/json;charset=UTF-8")
-			res.json({ success:true , message: 'Docs saved', doc:doc });
+			res.json({ success:true , message: 'Docs saved', doc:document });
 		})
 		})
 		});
@@ -101,54 +90,8 @@ router.route('/upload/:user_id')
 		})
 	});
 
-// Keys api 
-// ===============================================
-router.route('/notarize/:users_id')
-    .post(function(req, res) {
-		var value = req.body.value	
-		User.findOne({"uid": req.params.users_id}, function(err, user) {
-		if (err || !user){
-			return res.status(403).send({ 
-	        success: false, 
-	        message: 'user does not exist'
-			});
-		}
-		var docs = []
-		var check = 0
-		var l = user.docs.length
-		if(user.docs.length){
-		for (i = 0; i < user.docs.length; i++) { 
-		var d= user.docs[i]
-
-			console.log(JSON.stringify(d.hash))
-				console.log('i= '+i+' l= '+l)		
-		request.post({url: BASE_URL+'/notarizeme', form: {'text':d.hash }},function (error, response, body) {
-			// if(body.status == 'success'){
-			docs.push(d.hash)
-			console.log(JSON.stringify(d.hash))
-			
-		});
-			check = check+1
-		}
-		console.log('check= '+check+' l= '+l)
-		if(check == (l)){
-			user.status = "doc_notarized"
-			user.lastUpdated = Date.now()
-			user.save()
-			res.setHeader('status', 200)
-			res.setHeader("Content-Type", "application/json;charset=UTF-8")
-			res.json({ success:true , message: docs + ' Notarized successfully' });	
-		}
-	}
-	});
-
-});
-
-// new endpoints
-//==============================
-
 //Documents
-//==========
+//===============================
 // create
 router.route('/create_document/:user_id')
 .post(function(req, res){
@@ -163,7 +106,7 @@ router.route('/create_document/:user_id')
 		console.log('response: '+JSON.stringify(body) )
 		if ( JSON.parse(body).status == 'success') {
 			console.log(body) 
-			User.findOne({uid: req.params.user_id},
+			User2.findOne({uid: req.params.user_id},
 			function(err, user) {
 				if (err || !user)
 					res.send(err);

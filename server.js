@@ -14,7 +14,6 @@ var bodyParser = require('body-parser');
 var morgan      = require('morgan');
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
-var User   = require('./app/models/user'); // get our mongoose model
 var logger = require('morgan');
 var request = require('request')
 var autoUser = require('./app/autouser')
@@ -31,8 +30,10 @@ var db = mongoose.connection;
 // check db connection
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
-	console.log("Keystamp-api db started on :"+config.central_database);
-	var start = autoUser()
+
+	var start = autoUser(function(){
+		console.log("Keystamp-api db started on :"+config.central_database);
+	})
 });
 
 // router instance

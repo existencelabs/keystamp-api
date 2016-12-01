@@ -11,11 +11,9 @@ var config = require('../config'); // get our config file
 var morgan      = require('morgan');
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('../config'); // get our config file
-var User   = require('../app/models/user'); // get our mongoose model
 var User2   = require('../app/models/user2'); // get our mongoose model
 var notify = require('../app/notify') // get our notify method
 var Document   = require('../app/models/document'); // get our mongoose model
-var App   = require('../app/models/app'); // get our mongoose model
 var Group   = require('../app/models/groups'); // get our mongoose model
 var request = require('request')
 var Message = require('../app/models/message')
@@ -107,6 +105,16 @@ router.route('/get_notifications/:users_id')
 
 // Document/Txs api 
 // ===============================
+//getdocument
+router.route('/get_all_document') 
+//get all documents (accessed at GET http://localhost:8080/api/get_all_document)
+	.get(function(req, res) {
+		Document.find(function(err, docs) {	
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({success: true, docs: docs});
+		});
+});
 // get one user documents
 router.route('/get_my_documents/:users_id')
 	.get(function(req, res) {
@@ -174,7 +182,6 @@ router.route('/get_clients_by_middleman/:users_id')
 	
 // Assign api 
 // ===============================
-// invite to a group
 // subscribe to a group
 router.route('/subscribe/:users_id')
 	.post(function(req, res) {
@@ -234,6 +241,25 @@ router.route('/unsubscribe/:users_id')
 });
 	
 // assign to middleman
+router.route('/assign/:users_id')
+	.post(function(req, res) {
+	var assigner = req.body.assigner
+	var assignee = req.params.users_id
+	 User2.findOne({"uid": assignee}, function(err, usr) {
+		if (err || !usr){
+			return res.status(403).send({ 
+			success: false, 
+			message: 'User: '+assignee+ ' does not exists' 
+			});
+		}
+		usr.assignedTo = assigner
+		usr.save(function(){
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: assignee+' assigned to '+ assigner , assignedTo: usr.assignedTo});
+		})
+	})
+});
 // unlink from middleman
 // invite to keystamp
 

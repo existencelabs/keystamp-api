@@ -7,7 +7,10 @@ var UserShema2   = new Schema({
 	uid: Number,
 	email:String,
 	phone: Number,
-	last_pin: Number,
+	last_pin: {
+		type: Number,
+		default: 00000
+	},
 	assignedTo: {
 		type: Array,
 		default: []

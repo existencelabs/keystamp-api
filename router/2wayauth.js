@@ -11,10 +11,8 @@ var config = require('../config'); // get our config file
 var morgan      = require('morgan');
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('../config'); // get our config file
-var User   = require('../app/models/user'); // get our mongoose model
-var App   = require('../app/models/app'); // get our mongoose model
+var User2   = require('../app/models/user2'); // get our mongoose model
 var request = require('request')
-//var Message = require('../app/models/message')
 var notify = require('../app/notify')
 var BASE_URL = config.KSTMP_CRYTO_BASE_URL
 var monthNames = [
@@ -70,7 +68,7 @@ router.route('/send_telesign/:users_id')
 router.route('/verify_telesign/:users_id')
 	.post(function(req, res) {
 		var value = req.body.value	
-		User.findOne({"uid": req.params.users_id}, function(err, user) {
+		User2.findOne({"uid": req.params.users_id}, function(err, user) {
 		if (err){
 			return res.status(403).send({ 
 			success: false, 
@@ -93,7 +91,7 @@ router.route('/verify_telesign/:users_id')
 
 router.route('/send_sms/:users_id')
 	.get(function(req, res) {
-		User.findOne({"uid": req.params.users_id}, function(err, user) {
+		User2.findOne({"uid": req.params.users_id}, function(err, user) {
 		if (err){
 			return res.status(403).send({ 
 			success: false, 
@@ -132,7 +130,7 @@ router.route('/send_sms/:users_id')
 router.route('/verify_sms/:users_id')
 	.post(function(req, res) {
 		var value = req.body.value	
-		User.findOne({"uid": req.params.users_id}, function(err, user) {
+		User2.findOne({"uid": req.params.users_id}, function(err, user) {
 		if (err){
 			return res.status(403).send({ 
 			success: false, 
