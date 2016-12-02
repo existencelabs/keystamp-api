@@ -20,6 +20,7 @@
     "request": "2.79.0",
     "telesign": "https://github.com/ArthurGerbelot/node-telesign/tarball/master",
     "twilio": "2.1.0",
-    "nodemailer": "2.6.4 "
+    "nodemailer": "2.6.4 ",
+    "bitcore": "4.1.0"
   }
 }
