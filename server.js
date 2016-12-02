@@ -17,6 +17,7 @@ var config = require('./config'); // get our config file
 var logger = require('morgan');
 var request = require('request')
 var autoUser = require('./app/autouser')
+var bitcore = require('bitcore')
 
 // set middlewares
 app.use(logger('dev'));
