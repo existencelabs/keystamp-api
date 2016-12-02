@@ -16,7 +16,7 @@ module.exports = {
 	var fs = require('fs')
 	request.get('https://bitcoin-outlet.s3.amazonaws.com/qTdmWd8MrGWTbC9Yp/pdf-sample.pdf',function (error, response, body) {
 		console.log('request got : '+JSON.stringify(response))
-	}).pipe(fs.createWriteStream('./tmp/message.pdf'));;
+	}).pipe(fs.createWriteStream('./tmp/message.pdf'));
 	encryptor.encryptFile('./tmp/message.pdf', filename, key, function(err) {
 		// Encryption complete.
 		var path = './tmp/'+filename;
