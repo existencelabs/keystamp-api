@@ -7,6 +7,7 @@
 // Keystamp-api bitcore implementation
 // =============================================================================
 var bitcore = require('bitcore');
+var Message = require('bitcore-message');
 
 module.exports = {
 	// test transaction
@@ -31,7 +32,7 @@ module.exports = {
 	// create a private key
 	"create_PrivateKey": function(cb){
 		var privateKey = new bitcore.PrivateKey();
-		return cb(privateKey)
+		return cb(privateKey, privateKey.toAddress())
 	},
 	// create a public key
 	"create_publicKey": function(PrivateKey, cb){
@@ -45,12 +46,12 @@ module.exports = {
 		return cb(hdPrivateKey.xprivkey)  
 	},
 	//assign a derived key from master (return key, path[ m/uid/uid])
-	"derive_HDPrivateKey": function (master, keyid, cb){
+	"derive_HDPrivateKey": function (master, keyid, path, cb){
 		var parent = new bitcore.HDPrivateKey();
 		var child = parent.derive(keyid, true);
-		return cb(child.xprivkey)  
+		var newpath = path+'/'+keyid
+		return cb(child.xprivkey, newpath)  
 	},
-	// 
 	// CRYPTO
 	// ====================
 	// generate hash from file/text
@@ -62,7 +63,17 @@ module.exports = {
 		return cb(final)  
 	},
 	// sign hash (message) (bitcore-message)
-	// verify message
+	"sign_hash": function (key, value, cb){
+		var privateKey = new bitcore.PrivateKey(key);
+		var message = new Message(value);
+		var signature = message.sign(privateKey);
+		return cb(signature, message.inspect() )  
+	},
+	// verify_signature (message) (bitcore-message)
+	"verify_signature": function (address, signature, value, cb){
+		var verified = new Message(value).verify(address, signature);
+		return cb(verified)  
+	},
 	// notarize ( send signed hash in OP_RETURN field) OP_RETURN tx
 	"notarize": function (value, cb){
 		var privateKey = new bitcore.PrivateKey('L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy');

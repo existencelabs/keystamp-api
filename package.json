@@ -11,16 +11,17 @@
   "author": "Jean-Philippe Beaudet",
   "license": "GPL 3.0",
   "dependencies": {
+    "bitcore": "4.1.0",
+    "bitcore-message": "^1.0.2",
     "body-parser": "~1.0.1",
     "express": "~4.0.0",
     "file-encryptor": "0.1.1",
     "jsonwebtoken": "7.1.9",
     "mongoose": "~3.6.13",
     "morgan": "~1.0.0",
+    "nodemailer": "2.6.4 ",
     "request": "2.79.0",
     "telesign": "https://github.com/ArthurGerbelot/node-telesign/tarball/master",
-    "twilio": "2.1.0",
-    "nodemailer": "2.6.4 ",
-    "bitcore": "4.1.0"
+    "twilio": "2.1.0"
   }
 }
