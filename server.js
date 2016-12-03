@@ -17,7 +17,7 @@ var config = require('./config'); // get our config file
 var logger = require('morgan');
 var request = require('request')
 var autoUser = require('./app/autouser')
-var bitcore = require('bitcore')
+var bitcore = require('./app/bitcore_imp')
 
 // set middlewares
 app.use(logger('dev'));
@@ -31,7 +31,15 @@ var db = mongoose.connection;
 // check db connection
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
-
+		bitcore.create_PrivateKey(function(key){
+			console.log('Bitcore pub key = '+key)
+		//bitcore.test_tx(key, function(success){
+			//console.log('Bitcore tx = '+success)
+			//})
+			bitcore.hash_sha256('blabla', function(hash){
+				console.log('Bitcore hash = '+hash)
+			})
+		})
 	var start = autoUser(function(){
 		console.log("Keystamp-api db started on :"+config.central_database);
 	})
