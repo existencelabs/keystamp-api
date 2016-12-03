@@ -31,14 +31,21 @@ var db = mongoose.connection;
 // check db connection
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
+		// bitcore test zone
 		bitcore.create_PrivateKey(function(key){
-			console.log('Bitcore pub key = '+key)
-		//bitcore.test_tx(key, function(success){
-			//console.log('Bitcore tx = '+success)
-			//})
-			bitcore.hash_sha256('blabla', function(hash){
-				console.log('Bitcore hash = '+hash)
+			console.log('Bitcore prv key = '+key)
+		bitcore.hash_sha256('blabla', function(hash){
+			console.log('Bitcore hash = '+hash)
+		bitcore.derive_HDPrivateKey(key, 55677, function(keypath){
+			console.log('Bitcore keypath = '+keypath)
 			})
+		//bitcore.test_tx(key, function(tx){
+			//console.log('Bitcore tx = '+tx)
+			//})
+		//bitcore.notarize(hash, function(txid, opreturn){
+			//console.log('Bitcore tx = '+txid.toString())
+			//})
+	})
 		})
 	var start = autoUser(function(){
 		console.log("Keystamp-api db started on :"+config.central_database);
