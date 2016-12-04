@@ -19,7 +19,7 @@ var request = require('request')
 var crypt = require('../app/encrypt')
 var notify = require('../app/notify')
 var BASE_URL = config.KSTMP_CRYTO_BASE_URL
-
+var bitcore=require('../app/bitcore_imp')
 var monthNames = [
   "January", "February", "March",
   "April", "May", "June", "July",
@@ -54,7 +54,7 @@ router.route('/upload/:user_id')
 		user.save(function(err) {
 			if (err)
 				res.send(err);
-		var ok = crypt.upload(supersecret, path, 'newfile.dat',req.params.user_id, function(err){
+		var ok = crypt.upload(key, path, 'newfile.dat',req.params.user_id, function(err){
 					// create a sample document
 				var document = new Document ({
 					doc_id: Math.floor(Math.random()*90000) + 10000, 
@@ -309,5 +309,81 @@ router.route('/decrypt_file/:users_id')
 			})
 	});
 });
-	
+// New bitcore endpoints
+// ==================================
+// Bitcore Keys api
+
+router.route('/get_public_key')
+	.get(function(req, res) {
+		bitcore.create_publicKey(function(key){
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: 'Public key created succesfully!' , xpub: key});
+		});
+	});
+router.route('/get_public_key_from_parent')
+	.post(function(req, res) {
+		var parent = req.body.parent
+		bitcore.create_publicKey_from_parent(parent,function(key){
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: 'Public key created from: '+parent+" created successfully" , xpub: key});
+		});
+	});
+router.route('/get_private_key')
+	.get(function(req, res) {
+		bitcore.create_HDPrivateKey(function(key){
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: 'New private key created succesfully' , xprv: key});
+		});
+	});
+router.route('/get_derived_key')
+	.post(function(req, res) {
+		var parent = req.body.parent
+		var current_path = req.body.path
+		var id = req.body.id || 0
+		bitcore.derive_HDPrivateKey(parent, Number(id), current_path,  function(key, path){
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: 'New derived key: '+key+' created succesfully with path: '+path, xprv: key, path:path});
+		});
+	});
+// Sign, Hash verify and notarize from bitcore  
+// ==================================
+// sign text or file with a public key while logged
+router.route('/sign_file/:users_id')
+	.post(function(req, res) {
+		var path = req.body.path
+		var username = req.params.users_id
+		var key = req.body.key
+		bitcore.hash_sha256(path,  function(hash){
+			bitcore.sign_hash(key, hash,  function(signature, details){
+			notify('success', username , path + ' signed succesfully successfully with key: '+key+' signature: '+signature, function(err){
+				if(err){
+					return res.status(403).send({ 
+						success: false, 
+						message: 'notification failed'
+					});
+				}
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: path + ' signed succesfully successfully with key: '+key+' signature: '+signature, signture:signature, key:key});
+			})
+	});
+		});
+});
+// sign text or file with a public key while unlogged
+router.route('/sign_file_demo')
+	.post(function(req, res) {
+		var path = req.body.path
+		var key = req.body.key
+		bitcore.hash_sha256(path,  function(hash){
+			bitcore.sign_hash(key, hash,  function(signature, details){
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: path + ' signed succesfully successfully with key: '+key+' signature: '+signature, signature:signature, key:key});
+			})
+		});
+});
 }// end
