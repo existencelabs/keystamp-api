@@ -21,12 +21,12 @@ var Tx   = require('../app/models/tx'); // get our mongoose model
 var Notification   = require('../app/models/notifications'); // get our mongoose model
 var mailer = require('../app/mailer')
 BASE_URL = config.KSTMP_CRYTO_BASE_URL
-
+var bitcore = require('../app/bitcore_imp')
 
 module.exports = function (supersecret, router) {
+
 // Message api
 //================================   
-
 router.route('/get_messages_inbox/:users_id')
 	.get(function(req, res) {
 	Message.find({"to": req.params.users_id}, function(err, mess) {

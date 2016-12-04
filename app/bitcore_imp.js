@@ -34,15 +34,23 @@ module.exports = {
 		var privateKey = new bitcore.PrivateKey();
 		return cb(privateKey, privateKey.toAddress())
 	},
-	// create a public key
-	"create_publicKey": function(PrivateKey, cb){
+	// create a public key from parent
+	"create_publicKey_from_parent": function(PrivateKey, cb){
+		// from a private key
+		var privateKey = new bitcore.PrivateKey();
+		var publicKey = privateKey.toPublicKey(PrivateKey)
+		return cb(publicKey)
+	},
+	// create a public key from bitcore
+	"create_publicKey": function(cb){
+		var privateKey = new bitcore.PrivateKey();
 		var publicKey = privateKey.toPublicKey();
 		return cb(publicKey)
 	},
 	// create a xprv
-	"create_HDPrivateKey": function (PrivateKey, cb){
+	"create_HDPrivateKey": function (cb){
 		var HDPrivateKey = bitcore.HDPrivateKey;
-		var hdPrivateKey = new HDPrivateKey();
+		var hdPrivateKey = new bitcore.HDPrivateKey();
 		return cb(hdPrivateKey.xprivkey)  
 	},
 	//assign a derived key from master (return key, path[ m/uid/uid])

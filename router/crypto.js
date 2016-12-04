@@ -33,6 +33,7 @@ module.exports = function (supersecret, router) {
 // upload and encrypt
 router.route('/upload/:user_id')
 .post(function(req, res){
+	var key = req.body.key
 	var date = new Date();
 	var day = date.getDate();
 	var monthIndex = date.getMonth();
