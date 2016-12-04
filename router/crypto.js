@@ -180,7 +180,7 @@ router.route('/sign_document/:users_id')
 	});
 
 });
-// notarize a document
+// notarize a document while logged
 router.route('/notarize_document/:users_id')
 	.post(function(req, res) {
 		var doc_id = req.body.doc_id
@@ -220,6 +220,26 @@ router.route('/notarize_document/:users_id')
 		})
 		});
 	});
+});
+// notarize a document while unlogged
+router.route('/notarize')
+	.post(function(req, res) {
+		var path = req.body.path
+		var signature1 = req.body.signature1
+		var signature2 = req.body.signature2
+		bitcore.hash_sha256(path,  function(filehash){
+		bitcore.hash_sha256('KEYSTAMP'+'&&'+filehash+'&&'+signature1+'&&'+signature2,  function(final_hash){
+		// send a notarize request to python api
+		request.post({url: BASE_URL+'/notarizeme', form: {'text':final_hash }},function (error, response, body) {
+			// create a sample transaction to save the record
+			console.log(body)
+			var txid = JSON.parse(body).txid
+			res.setHeader('status', 200)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:true , message: path + ' timestamped txid: '+txid, final_hash:final_hash, txid:txid});
+		})
+	})
+		})
 });
 // notarize any text
 router.route('/notarize_text/:users_id')
