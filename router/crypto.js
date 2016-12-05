@@ -238,9 +238,9 @@ router.route('/notarize')
 				var txid = JSON.parse(body).txid
 				res.setHeader('status', 200)
 				res.setHeader("Content-Type", "application/json;charset=UTF-8")
-				res.json({ success:true , message: path + ' timestamped txid: '+txid, final_hash:final_hash, txid:txid});
+				res.json({ success:true , message: path + ' timestamped successfully ',path:path, final_hash:final_hash, txid:txid});
 			}else{
-				var txid = '81b7a6359110d0d3534b8c15d43d512f6de30d5a1b6eba220975f9c12e7bc5a3'
+				var txid = undefined
 				res.setHeader('status', 304)
 				res.setHeader("Content-Type", "application/json;charset=UTF-8")
 				res.json({ success:true , message: 'tx failed to be broadcast please try again...', final_hash:final_hash, txid:txid});
@@ -268,16 +268,16 @@ router.route('/verify_by_signature')
 				if (hash === final_hash){
 					res.setHeader('status', 200)
 					res.setHeader("Content-Type", "application/json;charset=UTF-8")
-					res.json({ success:true , message: 'hash: '+hash+' and '+final_hash+' match ', hash:hash, final_hash:final_hash, txid:txid});
+				res.json({ success:true , message: 'Both hashes matches ' , hash:hash, final_hash:final_hash, txid:txid});
 				}else{
 					res.setHeader('status', 200)
 					res.setHeader("Content-Type", "application/json;charset=UTF-8")
-					res.json({ success:true , message: 'hash: '+hash+' and '+final_hash+' do NOT match ', final_hash:final_hash, txid:txid});
+					res.json({ success:true , message: 'Both hashes do NOT match ', hash:hash, final_hash:final_hash, txid:txid});
 				}
 			}else{
 				res.setHeader('status', 304)
 				res.setHeader("Content-Type", "application/json;charset=UTF-8")
-				res.json({ success:false , message: 'tx was not found...', final_hash:final_hash, txid:txid});
+				res.json({ success:false , message: 'txid was not found...', final_hash:final_hash, txid:txid});
 			}
 			})
 		})
@@ -296,16 +296,16 @@ router.route('/verify_by_hash')
 			if (hash === final_hash){
 				res.setHeader('status', 200)
 				res.setHeader("Content-Type", "application/json;charset=UTF-8")
-				res.json({ success:true , message: 'hash: '+hash+' and '+final_hash+' match ', hash:hash, final_hash:final_hash, txid:txid});
+				res.json({ success:true , message: 'Both hashes matches ' , hash:hash, final_hash:final_hash, txid:txid});
 			}else{
 				res.setHeader('status', 200)
 				res.setHeader("Content-Type", "application/json;charset=UTF-8")
-				res.json({ success:true , message: 'hash: '+hash+' and '+final_hash+' do NOT match ', final_hash:final_hash, txid:txid});
+				res.json({ success:true , message: 'Both hashes do NOT match ', hash:hash, final_hash:final_hash, txid:txid});
 			}
 		}else{
 			res.setHeader('status', 304)
 			res.setHeader("Content-Type", "application/json;charset=UTF-8")
-			res.json({ success:false , message: 'tx was not found...', final_hash:final_hash, txid:txid});
+			res.json({ success:false , message: 'txid was not found...', final_hash:final_hash, txid:txid});
 		}
 	})
 });
@@ -415,7 +415,7 @@ router.route('/get_public_key_from_parent')
 		bitcore.create_publicKey_from_parent(parent,function(key){
 			res.setHeader('status', 200)
 			res.setHeader("Content-Type", "application/json;charset=UTF-8")
-			res.json({ success:true , message: 'Public key created from: '+parent+" created successfully" , xpub: key});
+			res.json({ success:true , message: 'Public key created created successfully', parent:parent, xpub: key});
 		});
 	});
 router.route('/get_private_key')
@@ -434,7 +434,7 @@ router.route('/get_derived_key')
 		bitcore.derive_HDPrivateKey(parent, Number(id), current_path,  function(key, path){
 			res.setHeader('status', 200)
 			res.setHeader("Content-Type", "application/json;charset=UTF-8")
-			res.json({ success:true , message: 'New derived key: '+key+' created succesfully with path: '+path, xprv: key, path:path});
+			res.json({ success:true , message: 'New derived key: created succesfully' , xprv: key, path:path});
 		});
 	});
 // Sign, Hash verify and notarize from bitcore  
@@ -447,7 +447,7 @@ router.route('/sign_file/:users_id')
 		var key = req.body.key
 		bitcore.hash_sha256(path,  function(hash){
 			bitcore.sign_hash(key, hash,  function(signature, details){
-			notify('success', username , path + ' signed succesfully successfully with key: '+key+' signature: '+signature, function(err){
+			notify('success', username , path + ' signed succesfully successfully', function(err){
 				if(err){
 					return res.status(403).send({ 
 						success: false, 
@@ -456,7 +456,7 @@ router.route('/sign_file/:users_id')
 				}
 			res.setHeader('status', 200)
 			res.setHeader("Content-Type", "application/json;charset=UTF-8")
-			res.json({ success:true , message: path + ' signed succesfully successfully with key: '+key+' signature: '+signature, signture:signature, key:key});
+			res.json({ success:true , message: path + ' signed succesfully successfully' , signature:signature, key:key, path:path});
 			})
 	});
 		});
@@ -470,7 +470,7 @@ router.route('/sign_file_demo')
 			bitcore.sign_hash(key, hash,  function(signature, details){
 			res.setHeader('status', 200)
 			res.setHeader("Content-Type", "application/json;charset=UTF-8")
-			res.json({ success:true , message: path + ' signed succesfully successfully with key: '+key+' signature: '+signature, signature:signature, key:key});
+			res.json({ success:true , message: path + ' signed succesfully successfully', signature:signature, key:key});
 			})
 		});
 });
