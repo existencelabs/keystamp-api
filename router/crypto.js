@@ -230,7 +230,7 @@ router.route('/notarize')
 		// hash the file first
 		bitcore.hash_sha256(path,  function(filehash){
 			// then hash the filehash and the 2  signature of the same file  
-			bitcore.hash_sha256('KEYSTAMP'+'&&'+filehash+'&&'+signature1+'&&'+signature2,  function(final_hash){
+			bitcore.hash_sha256(filehash+'&&'+signature1+'&&'+signature2,  function(final_hash){
 			// finally send a notarize request to python api
 			request.post({url: BASE_URL+'/notarizeme', form: {'text':final_hash }},function (error, response, body) {
 				console.log(body)
@@ -259,7 +259,7 @@ router.route('/verify_by_signature')
 		// hash the file first
 		bitcore.hash_sha256(path,  function(filehash){
 			// then hash the filehash and the 2  signature of the same file  
-			bitcore.hash_sha256('KEYSTAMP'+'&&'+filehash+'&&'+signature1+'&&'+signature2,  function(final_hash){
+			bitcore.hash_sha256(filehash+'&&'+signature1+'&&'+signature2,  function(final_hash){
 			// finally send a notarize request to python api
 			request.post({url: BASE_URL+'/get_hash_from_bc', form: {'txid':txid }},function (error, response, body) {
 				if (JSON.parse(body).hash){
