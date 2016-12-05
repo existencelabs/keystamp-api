@@ -26,7 +26,13 @@ var monthNames = [
   "August", "September", "October",
   "November", "December"
 ];
-
+var time = function(){
+	var date = new Date();
+	var day = date.getDate();
+	var monthIndex = date.getMonth();
+	var year = date.getFullYear();
+	return (day+" "+monthIndex+" "+year)
+}
 module.exports = function (supersecret, router) {
 // Hash api
 //========================================
@@ -34,10 +40,7 @@ module.exports = function (supersecret, router) {
 router.route('/upload/:user_id')
 .post(function(req, res){
 	var key = req.body.key
-	var date = new Date();
-	var day = date.getDate();
-	var monthIndex = date.getMonth();
-	var year = date.getFullYear();
+
 	var endpoint = '/hashme'
 	var base_url ='https://reghackto.herokuapp.com'
 	var path = req.body.path
@@ -97,10 +100,7 @@ router.route('/upload/:user_id')
 // create
 router.route('/create_document/:user_id')
 .post(function(req, res){
-	var date = new Date();
-	var day = date.getDate();
-	var monthIndex = date.getMonth();
-	var year = date.getFullYear();
+
 	var endpoint = '/hashme'
 	var base_url ='https://reghackto.herokuapp.com'
 	var path = req.body.path

@@ -17,7 +17,7 @@ var config = require('./config'); // get our config file
 var logger = require('morgan');
 var request = require('request')
 var autoUser = require('./app/autouser')
-var bitcore = require('./app/bitcore_imp')
+var bit_tester = require('./app/bitcore_tester')
 
 // set middlewares
 app.use(logger('dev'));
@@ -28,36 +28,14 @@ var mongoose   = require('mongoose');
 mongoose.connect(config.central_database); // database
 app.set('superSecret', config.secret); // secret variable
 var db = mongoose.connection;
-// check db connection
+// check db connection	
+
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
-
-		// bitcore test zone
-		bitcore.create_PrivateKey(function(key, address){
-			console.log('Bitcore prv key = '+key)
-		bitcore.hash_sha256('blabla', function(hash){
-			console.log('Bitcore hash = '+hash)
-		bitcore.derive_HDPrivateKey(key, 55677, '/m/0', function(HDkey, keypath){
-			console.log('Bitcore HDkey = '+HDkey)
-			console.log('Bitcore keypath = '+keypath)
-			})
-
-		//bitcore-message test zone
-		bitcore.sign_hash(key, hash, function(signature, details){
-			console.log('Bitcore-message signature = '+signature)
-			console.log('Bitcore-message details = '+details)
-			//bitcore.notarize(signature, function(txid){
-				//console.log('Bitcore tx = '+txid.toString())
-				console.log('Bitcore address = '+address)
-			bitcore.verify_signature(address, signature, hash, function(verified){
-				console.log('Bitcore-message verified = '+verified)
-				})
-				})
-			//})
-	})
-		})
+	bit_tester(function(){
 	var start = autoUser(function(){
 		console.log("Keystamp-api db started on :"+config.central_database);
+	})
 	})
 });
 
