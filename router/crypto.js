@@ -233,20 +233,80 @@ router.route('/notarize')
 			bitcore.hash_sha256('KEYSTAMP'+'&&'+filehash+'&&'+signature1+'&&'+signature2,  function(final_hash){
 			// finally send a notarize request to python api
 			request.post({url: BASE_URL+'/notarizeme', form: {'text':final_hash }},function (error, response, body) {
-				if (JSON.parse(body).txid){
 				console.log(body)
+				if (JSON.parse(body).txid){
 				var txid = JSON.parse(body).txid
 				res.setHeader('status', 200)
 				res.setHeader("Content-Type", "application/json;charset=UTF-8")
 				res.json({ success:true , message: path + ' timestamped txid: '+txid, final_hash:final_hash, txid:txid});
 			}else{
 				var txid = '81b7a6359110d0d3534b8c15d43d512f6de30d5a1b6eba220975f9c12e7bc5a3'
-				res.setHeader('status', 200)
+				res.setHeader('status', 304)
 				res.setHeader("Content-Type", "application/json;charset=UTF-8")
 				res.json({ success:true , message: 'tx failed to be broadcast please try again...', final_hash:final_hash, txid:txid});
 			}
 			})
 		})
+	})
+});
+// verify a document while unlogged with the rwo signature file url and txid
+router.route('/verify_by_signature')
+	.post(function(req, res) {
+		var txid= req.body.txid
+		var path = req.body.path
+		var signature1 = req.body.signature1
+		var signature2 = req.body.signature2
+		// hash the file first
+		bitcore.hash_sha256(path,  function(filehash){
+			// then hash the filehash and the 2  signature of the same file  
+			bitcore.hash_sha256('KEYSTAMP'+'&&'+filehash+'&&'+signature1+'&&'+signature2,  function(final_hash){
+			// finally send a notarize request to python api
+			request.post({url: BASE_URL+'/get_hash_from_bc', form: {'txid':txid }},function (error, response, body) {
+				if (JSON.parse(body).hash){
+				console.log(body)
+				var hash= JSON.parse(body).hash
+				if (hash === final_hash){
+					res.setHeader('status', 200)
+					res.setHeader("Content-Type", "application/json;charset=UTF-8")
+					res.json({ success:true , message: 'hash: '+hash+' and '+final_hash+' match ', hash:hash, final_hash:final_hash, txid:txid});
+				}else{
+					res.setHeader('status', 200)
+					res.setHeader("Content-Type", "application/json;charset=UTF-8")
+					res.json({ success:true , message: 'hash: '+hash+' and '+final_hash+' do NOT match ', final_hash:final_hash, txid:txid});
+				}
+			}else{
+				res.setHeader('status', 304)
+				res.setHeader("Content-Type", "application/json;charset=UTF-8")
+				res.json({ success:false , message: 'tx was not found...', final_hash:final_hash, txid:txid});
+			}
+			})
+		})
+	})
+});
+// verify a document while unlogged with final hash of the proof 
+router.route('/verify_by_hash')
+	.post(function(req, res) {
+		var txid= req.body.txid
+		var final_hash = req.body.hash
+		// finally send a notarize request to python api
+		request.post({url: BASE_URL+'/get_hash_from_bc', form: {'txid':txid }},function (error, response, body) {
+			if (JSON.parse(body).hash){
+			console.log(body)
+			var hash= JSON.parse(body).hash
+			if (hash === final_hash){
+				res.setHeader('status', 200)
+				res.setHeader("Content-Type", "application/json;charset=UTF-8")
+				res.json({ success:true , message: 'hash: '+hash+' and '+final_hash+' match ', hash:hash, final_hash:final_hash, txid:txid});
+			}else{
+				res.setHeader('status', 200)
+				res.setHeader("Content-Type", "application/json;charset=UTF-8")
+				res.json({ success:true , message: 'hash: '+hash+' and '+final_hash+' do NOT match ', final_hash:final_hash, txid:txid});
+			}
+		}else{
+			res.setHeader('status', 304)
+			res.setHeader("Content-Type", "application/json;charset=UTF-8")
+			res.json({ success:false , message: 'tx was not found...', final_hash:final_hash, txid:txid});
+		}
 	})
 });
 // notarize any text
