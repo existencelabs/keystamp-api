@@ -95,7 +95,8 @@ router.route('/get_notifications/:users_id')
 		if (err){
 			return res.status(403).send({ 
 			success: false, 
-			message: 'No notifications yet'
+			message: 'No notifications yet',
+		    notification: []
 			});
 		}
 		res.setHeader('status', 200)
@@ -123,7 +124,8 @@ router.route('/get_my_documents/:users_id')
 		if (err || !docs){
 			return res.status(403).send({ 
 			success: false, 
-			message: 'No documents yet'
+			message: 'No documents yet',
+			docs: []
 			});
 		}
 		res.setHeader('status', 200)
@@ -139,7 +141,8 @@ router.route('/get_my_tx/:users_id')
 		if (err || !txs){
 			return res.status(403).send({ 
 			success: false, 
-			message: 'No transactions yet'
+			message: 'No transactions yet',
+			txs: []
 			});
 		}
 		res.setHeader('status', 200)
@@ -156,7 +159,8 @@ router.route('/get_members_by_group/:users_id')
 		if (err || !group || group.length < 1){
 			return res.status(403).send({ 
 			success: false, 
-			message: req.params.users_id+' is not member of any #group yet' 
+			message: req.params.users_id+' is not member of any #group yet' ,
+			members: []
 			});
 		}
 		res.setHeader('status', 200)

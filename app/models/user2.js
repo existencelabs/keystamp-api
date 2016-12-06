@@ -7,6 +7,7 @@ var UserShema2   = new Schema({
 	uid: Number,
 	email:String,
 	phone: Number,
+	uid: Number,
 	last_pin: {
 		type: Number,
 		default: 00000
